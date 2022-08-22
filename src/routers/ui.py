@@ -23,6 +23,8 @@ templates = Jinja2Templates(directory="templates")
 client = AsyncIOMotorClient(core.settings.mongo_conn_str)
 db = client[core.settings.mongo_db]
 
+project_schema = "{}"
+
 
 @router.get("/project", response_class=HTMLResponse)
 def show_all_projects(request: Request):
@@ -41,8 +43,9 @@ def show_new_project(request: Request):
     """
     return templates.TemplateResponse("project_form.html.jinja", {
         "request": request,
-        "schema": models.TemplateUpdate.schema_json(),
-        "id": ""
+        "schema": project_schema,
+        "id": "",
+        "title": "Project"
     })
 
 
@@ -55,6 +58,7 @@ def show_project_with_id(
     """
     return templates.TemplateResponse("template_form.html.jinja", {
         "request": request,
-        "schema": models.TemplateUpdate.schema_json(),
-        "id": id
+        "schema": project_schema,
+        "id": id,
+        "title": "Project"
     })
