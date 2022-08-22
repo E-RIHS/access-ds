@@ -5,6 +5,7 @@
 {% block head %}
     {{ super() }}
     
+    <script src="/static/js/v-jsoneditor.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@koumoul/vjsf@2.18.2/dist/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@koumoul/vjsf@2.18.2/dist/third-party.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@koumoul/vjsf@2.18.2/dist/main.css">
@@ -49,14 +50,20 @@
             v-if="tabItems[tab] === 'Debug: schema'"
             class="mt-6" 
             elevation="0">
-            <pre v-text="schema"></pre>
+            <v-jsoneditor 
+                ref="schemaEditor" 
+                v-model="schema"
+                height="30rem"></v-jsoneditor>
         </v-card>
 
         <v-card 
             v-if="tabItems[tab] === 'Debug: instance'"
             class="mt-6" 
             elevation="0">
-            <pre v-text="instance"></pre>
+            <v-jsoneditor 
+                ref="instanceEditor" 
+                v-model="instance"
+                height="30rem"></v-jsoneditor>
         </v-card>
     </v-container>
 
