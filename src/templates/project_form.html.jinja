@@ -5,7 +5,11 @@
 {% block head %}
     {{ super() }}
     
+    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+
     <script src="/static/js/v-jsoneditor.min.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/@koumoul/vjsf@2.18.2/dist/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@koumoul/vjsf@2.18.2/dist/third-party.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@koumoul/vjsf@2.18.2/dist/main.css">
@@ -112,7 +116,7 @@
 {% block script %}
     <script type="text/javascript">
         const title = '{{ title }}'
-        const schema = '{{ schema }}'
+        const schema = '{{ schema | safe }}'
         const initialId = '{{ id }}'
 
         const formOptions =  { 
@@ -149,6 +153,7 @@
                 schema: JSON.parse(schema),
                 instance: {},
 
+                formOptions: formOptions,
                 isValid: null,
 
                 tab: null,

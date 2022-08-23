@@ -23,7 +23,9 @@ templates = Jinja2Templates(directory="templates")
 client = AsyncIOMotorClient(core.settings.mongo_conn_str)
 db = client[core.settings.mongo_db]
 
-project_schema = "{}"
+# TODO: temporarily load the json schema from a file
+fh = open("./seeding/project.schema.json")
+project_schema = json.load(fh)
 
 
 @router.get("/project", response_class=HTMLResponse)
@@ -43,7 +45,7 @@ def show_new_project(request: Request):
     """
     return templates.TemplateResponse("project_form.html.jinja", {
         "request": request,
-        "schema": project_schema,
+        "schema": json.dumps(project_schema),
         "id": "",
         "title": "Project"
     })
@@ -58,7 +60,7 @@ def show_project_with_id(
     """
     return templates.TemplateResponse("template_form.html.jinja", {
         "request": request,
-        "schema": project_schema,
+        "schema": json.dumps(project_schema),
         "id": id,
         "title": "Project"
     })

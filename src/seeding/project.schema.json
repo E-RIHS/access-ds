@@ -1,0 +1,114 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://e-rihs.eu/schema/project-v0.1",
+    "title": "E-RIHS access project",
+    "type": "object",
+    "properties": {
+      "id": {
+        "title": "Id",
+        "description": "Project ID",
+        "type": "string"
+      },
+      "title": {
+        "title": "Title",
+        "description": "Project title",
+        "type": "string"
+      },
+      "version": {
+        "title": "Version",
+        "description": "Project version",
+        "type": "string"
+      },
+      "research_questions_1": {
+        "title": "Research questions 1",
+        "description": "Research questions in an array of strings",
+        "type": "array",
+        "items": {
+          "title": "Question",
+          "type": "string"
+        }
+      },
+      "research_questions_2": {
+        "title": "Research questions 2",
+        "description": "Research questions in an array of objects",
+        "type": "array",
+        "items": {
+          "title": "Question",
+          "type": "object",
+          "properties": {
+            "Question": {
+              "title": "Question",
+              "type": "string"
+            }
+          }
+        }
+      },
+      "research_questions_3": {
+        "title": "Research questions 3",
+        "description": "Research questions in a markdown editor",
+        "type": "string",
+        "x-display": "markdown"
+      },
+      "services": {
+        "title": "E-RIHS services",
+        "type": "array",
+        "items": {
+          "title": "Service ID",
+          "type": "string"
+        }
+      },
+      "objects": {
+        "title": "Objects and archives",
+        "type": "array",
+        "items": {
+          "title": "Object/archive ID",
+          "type": "string"
+        }
+      },
+      "state": {
+        "title": "State",
+        "description": "Project state",
+        "type": "string",
+        "enum": [
+          "In preparation",
+          "Submitted",
+          "Accepted",
+          "Declined"
+        ],
+        "default": "In preparation"
+      },
+      "participants": {
+        "title": "Participants",
+        "type": "array",
+        "items": {
+          "title": "Participant",
+          "type": "object",
+          "properties": {
+            "orcid": {
+              "title": "Participant ORCID",
+              "type": "string"
+            },
+            "roles": {
+              "title": "Roles",
+              "type": "array",
+              "items": {
+                "title": "Role",
+                "enum": [
+                  "Principal investigator",
+                  "Project member"
+                ],
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "orcid"
+          ]
+        }
+      },
+      "assessment": {
+        "title": "Assessment",
+        "type": "string"
+      }
+    }
+  }
