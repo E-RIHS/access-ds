@@ -32,7 +32,7 @@ cd access-ds
 
 For fast development, a MongoDB docker-compose script is provided. Do not use this in a production environment (or at the very least, change the password!).
 
-Launching this docker-compose script will automatically fetch the required docker containers and run them. Please note in Ubuntu 22.04 the docker-compose command needs to be run as root or using the sudo command prefic as shown.
+Launching this docker-compose script will automatically fetch the required docker containers and run them. Please note in Ubuntu 22.04 the docker-compose command needs to be run as root or using the sudo command prefix as shown.
 
 ```shell
 cd mongo_container
@@ -44,7 +44,7 @@ cd ..
 
 Different Python projects will require different Python packages. When you have multiple projects side-by-side, it could happen that these require different versions of the same packages, which could lead to issues. Therefore, it is good practice to run each project in a different *virtual environment*, each with its own set of dependencies.
 
-First, create and activate a virtual environment: (in UBuntu 22.04 the "python3" command is needed intead of just writing "python".
+First, create and activate a virtual environment: (in Ubuntu 22.04 the "python3" command is needed intead of just writing "python".
 
 ```shell
 python -m venv venv         # Creating a virtual environment for our application
