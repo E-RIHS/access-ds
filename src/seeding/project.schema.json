@@ -18,7 +18,7 @@
             "description": "Project title",
             "type": "string",
             "minLength": 3,
-            "maxLength": 100
+            "maxLength": 250
         },
         "version": {
             "title": "Version",
@@ -103,17 +103,32 @@
                 "type": "string"
             }
         },
-        "proposed_services": {
+        "proposed_services1": {
             "title": "E-RIHS services",
             "type": "array",
             "items": {
                 "title": "Service ID",
                 "type": "string"
+            },
+            "x-fromData": "context.services",
+            "x-itemKey": "id",
+            "x-itemTitle": "label"
+        },
+        "proposed_services2": {
+            "title": "E-RIHS services",
+            "type": "array",
+            "items": {
+                "title": "Service ID",
+                "type": "string",
+                "enum": [
+                    "MOLAB-18",
+                    "MOLAB-27"
+                  ]
             }
         },
         "period": {
             "title": "Period",
-            "description": "Time span in which the project should be carried out??",
+            "description": "Time span in which the project should be carried out",
             "type": "object",
             "properties": {
                 "start_date": {

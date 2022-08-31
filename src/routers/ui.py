@@ -45,7 +45,7 @@ def modify_project(role: Optional[str], state: Optional[str]):
                 "readOnly": True
             },
             "assessment": {
-                "readOnly": True
+                "x-hidden": True
             },
             "creation_timestamp": {
                 "readOnly": True
