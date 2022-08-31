@@ -102,7 +102,7 @@ def show_new_project(
     Displaying project form for new data entry
     """
     if role is not None or state is not None:
-        schema = modify_project(role=role, draft=draft)
+        schema = modify_project(role=role, state=state)
     else:
         schema = project_schema
 
