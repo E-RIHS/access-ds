@@ -6,6 +6,7 @@ from fastapi.param_functions import Query
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from motor.motor_asyncio import AsyncIOMotorClient
+from mergedeep import merge
 
 import core
 import crud
@@ -28,6 +29,60 @@ fh = open("./seeding/project.schema.json")
 project_schema = json.load(fh)
 
 
+def modify_project(role: Optional[str], state: Optional[str]):
+    role_modifier = {}
+    state_modifier = {}
+
+    if role == "user":
+        role_modifier["properties"] = {
+            "id": {
+                "readOnly": True
+            },
+            "version": {
+                "readOnly": True
+            },
+            "state": {
+                "readOnly": True
+            },
+            "assessment": {
+                "readOnly": True
+            },
+            "creation_timestamp": {
+                "readOnly": True
+            },
+            "creator": {
+                "readOnly": True
+            }
+        }
+    elif role == "reviewer":
+        role_modifier["properties"] = {
+            "id": {
+                "readOnly": True
+            },
+            "version": {
+                "readOnly": True
+            },
+            "state": {
+                "enum": [
+                    "accepted",
+                    "revision requested",
+                    "declined"
+                ]
+            },
+            "creation_timestamp": {
+                "readOnly": True
+            },
+            "creator": {
+                "readOnly": True
+            }
+        }
+
+    if state in ["accepted", "revision requested", "declined"]:
+        state_modifier["readOnly"] = True
+
+    return merge({}, project_schema, role_modifier, state_modifier)
+
+
 @router.get("/project", response_class=HTMLResponse)
 def show_all_projects(request: Request):
     """
@@ -39,13 +94,21 @@ def show_all_projects(request: Request):
 
 
 @router.get("/project/new", response_class=HTMLResponse)
-def show_new_project(request: Request):
+def show_new_project(
+        request: Request, 
+        role: Optional[str] = Query(None, description="Role"),
+        state: Optional[str] = Query(None, description="State")):
     """
     Displaying project form for new data entry
     """
+    if role is not None or state is not None:
+        schema = modify_project(role=role, state=state)
+    else:
+        schema = project_schema
+
     return templates.TemplateResponse("project_form.html.jinja", {
         "request": request,
-        "schema": json.dumps(project_schema),
+        "schema": json.dumps(schema),
         "id": "",
         "title": "Project"
     })
