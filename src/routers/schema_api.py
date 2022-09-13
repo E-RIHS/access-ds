@@ -14,15 +14,15 @@ import crud
 # Creating a FastAPI router, meaning a set of routes that can be included later
 # in the FastAPI application
 router = APIRouter(
-    prefix="/api",
-    tags=["api"])
+    prefix="/api/schema",
+    tags=["schema"])
 
 # Creating a MongoDB client and connect to the relevant collections
 client = AsyncIOMotorClient(core.settings.mongo_conn_str)
 db = client[core.settings.mongo_db]
 
 
-@router.get("/schema")
+@router.get("/")
 async def get_all_schemas():
     """
     Return all schemas.
@@ -32,7 +32,7 @@ async def get_all_schemas():
     return response
 
 
-@router.get("/schema/{id}")
+@router.get("/{id}")
 async def get_schema_by_id(
         id: str = Path(None, description="The id of the schema")):
     """
@@ -49,7 +49,7 @@ async def get_schema_by_id(
     return response
 
 
-@router.post("/schema")
+@router.post("/")
 async def create_schema(schema: dict):
     """
     Create a new schema.
@@ -76,7 +76,7 @@ async def create_schema(schema: dict):
     return response
 
 
-@router.put("/schema/{id}")
+@router.put("/{id}")
 async def replace_schema(
         schema: dict,
         id: str = Path(None, description="The id of the schema")):
@@ -108,7 +108,7 @@ async def replace_schema(
     return updated
 
 
-@router.delete("/schema/{id}")
+@router.delete("/{id}")
 async def delete_schema(
         id: str = Path(None, description="The id of the schema")):
     """
