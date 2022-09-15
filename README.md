@@ -15,6 +15,7 @@
 Note: this has only been tested on Linux boxes (Arch/Manjaro and Ubuntu)
 
 For example with a new Ubuntu 22.04 installation please run the following:
+
 ```shell
 sudo apt install python3 docker docker-compose python3.10-venv python-is-python3
 ```
