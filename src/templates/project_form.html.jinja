@@ -48,6 +48,38 @@
                         :options="formOptions"></v-jsf>
                 </v-form>
             </v-row>
+            <v-row>
+                <div 
+                    v-if="!isValid"
+                    class="mt-3 font-weight-black red--text">
+                    Form invalid
+                </div>
+                <v-spacer></v-spacer>
+                <v-btn
+                    @click="saveDraft"
+                    :disabled="!isValid"
+                    class="mt-2 ml-4">
+                    Save draft
+                </v-btn>
+                <v-btn
+                    color="primary"
+                    :disabled="!isValid"
+                    class="mt-2 ml-4">
+                    Submit proposal
+                </v-btn>
+                <v-btn
+                    color="primary"
+                    :disabled="!isValid"
+                    class="mt-2 ml-4">
+                    Submit review
+                </v-btn>
+                <v-btn
+                    color="primary"
+                    :disabled="!isValid"
+                    class="mt-2 ml-4">
+                    Prepare revision
+                </v-btn>
+            </v-row>
         </v-card>
 
         <v-card 
@@ -172,6 +204,31 @@
             },
 
             methods: {
+                saveDraft() {
+                    let url = "/api/project"
+                    if (this.instance.id === undefined) {
+                        console.log('[POST] ' + url)
+                        axios.post(url, this.instance)
+                            .then(response => {
+                                // replace data with the returned data
+                                this.instance = response.data
+                            })
+                            .catch(error => {
+                                console.warn(error)
+                            })
+                    } else {
+                        url += '/' + this.instance.id
+                        console.log('[PUT] ' + url)
+                        axios.put(url, this.instance)
+                            .then(response => {
+                                // replace data with the returned data
+                                this.instance = response.data
+                            })
+                            .catch(error => {
+                                console.warn(error)
+                            })
+                    }
+                },
             }
         })
     </script>
