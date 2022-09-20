@@ -14,20 +14,27 @@
     <v-container>
         <v-card class="mt-6">
             <v-card-title>
+                <v-spacer></v-spacer>
                 <v-text-field
                     v-model="search"
                     append-icon="mdi-magnify"
                     label="Search"
                     single-line
                     hide-details></v-text-field>
+                    <v-btn
+                        color="primary"
+                        @click="openForm()"
+                        class="ml-4">
+                        <v-icon left>mdi-plus</v-icon>
+                        New draft
+                    </v-btn>
             </v-card-title>
 
             <v-data-table
                 :headers="headers"
-                :items="projects"
-                :server-items-length="totalProjects"
+                :items="tableData.data"
+                :server-items-length="tableData.query_parameters.total"
                 :options.sync="options"
-                :loading="loading"
                 :footer-props="{'items-per-page-options':[10, 50, 100, -1]}">
 
                 <template v-slot:item.id="{ item }">
@@ -41,31 +48,13 @@
                 </template>
             </v-data-table>
 
-            <v-card-text style="height: 45px; position: relative">
-                <v-fab-transition>
-                    <v-tooltip left>
-                        <template v-slot:activator="{ on, attrs }">
-                            <v-btn
-                                color="primary"
-                                absolute
-                                right
-                                fab
-                                @click="openForm()"
-                                v-bind="attrs"
-                                v-on="on">
-                                <v-icon>mdi-plus</v-icon>
-                            </v-btn>
-                        </template>
-                        <span>Create new project</span>
-                    </v-tooltip>
-                </v-fab-transition>
-            </v-card-text>
         </v-card>
     </v-container>
 {% endblock %}
 
 {% block script %}
     <script type="text/javascript">
+        const tableData = '{{ response | safe }}'
 
         new Vue({
             el: '#app',
@@ -75,19 +64,20 @@
             data: {
                 appBarDropdown: false,
 
+                tableData: JSON.parse(tableData),
+
                 headers: [
                     {text: 'Id', value:'id', sortable: false},
-                    {text: 'Title', value: 'title'},
                     {text: 'Version', value: 'version'},
+                    {text: 'Title', value: 'title'},
                     {text: 'State', value: 'state'}
                 ],
                 projects: [],
                 totalProjects: 0,
                 options: {
-                    sortBy: ['resource', 'category', 'template'],
+                    sortBy: ['id', 'version'],
                     multiSort: true},
                 search: '',
-                loading: true,
 
                 alert: false,
                 alertType: "info",
