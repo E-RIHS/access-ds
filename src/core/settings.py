@@ -5,7 +5,7 @@ from pydantic import BaseSettings
 
 class Settings(BaseSettings):
     mongo_conn_str: str = "mongodb://test:test1234@localhost:27017/"
-    mongo_db: str = "metahub"
+    mongo_db: str = "access-ds"
 
     class Config:
         env_file = ".env"
