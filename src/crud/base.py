@@ -124,6 +124,8 @@ class CRUDBase():
             query_parameters["sort_by"] = sort_by
             if len(sort_desc) > 0 and len(sort_desc) == len(sort_by) :
                 query_parameters["sort_desc"] = sort_desc
+        else:
+            sort = [("$natural", pymongo.ASCENDING)]
 
         data = await collection.find(find).sort(sort).skip(skip).limit(limit).to_list(None)
 
