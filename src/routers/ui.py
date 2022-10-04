@@ -126,21 +126,28 @@ def show_new_project(
     return templates.TemplateResponse("project_form.html.jinja", {
         "request": request,
         "schema": json.dumps(schema),
-        "id": "",
-        "title": "Project"
+        "instance": "{}",
     })
 
 
 @router.get("/project/{id}", response_class=HTMLResponse)
-def show_project_with_id(
+async def show_project_with_id(
         request: Request, 
         id: str = Path(None, description="Project identifier")):
     """
     Displaying project form with existing data, accessed by its id
     """
-    return templates.TemplateResponse("template_form.html.jinja", {
+    try:
+        response = await crud.project.get(
+            collection=db.projects,
+            id=id)
+    except crud.NoResultsError:
+        raise HTTPException(status_code=404, detail="NoResults")
+    except BaseException as err:
+        raise HTTPException(status_code=400, detail=str(err))
+
+    return templates.TemplateResponse("project_form.html.jinja", {
         "request": request,
         "schema": json.dumps(project_schema),
-        "id": id,
-        "title": "Project"
+        "instance": json.dumps(response, default=json_serial),
     })
