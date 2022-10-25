@@ -1,5 +1,6 @@
 import json
 from typing import Optional
+from datetime import date, datetime
 
 from fastapi import APIRouter, Request, HTTPException, Path
 from fastapi.param_functions import Query
@@ -27,6 +28,14 @@ db = client[core.settings.mongo_db]
 # TODO: temporarily load the json schema from a file
 fh = open("./seeding/project.schema.json")
 project_schema = json.load(fh)
+
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
+
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError ("Type %s not serializable" % type(obj))
 
 
 def modify_project(role: Optional[str], state: Optional[str]):
@@ -84,12 +93,20 @@ def modify_project(role: Optional[str], state: Optional[str]):
 
 
 @router.get("/project", response_class=HTMLResponse)
-def show_all_projects(request: Request):
+async def show_all_projects(request: Request):
     """
     Displaying a list of projects
     """
+    try:
+        response = await crud.project.get_all(
+            collection=db.projects)
+    except crud.NoResultsError:
+        raise HTTPException(status_code=404, detail="NoResults")
+    except BaseException as err:
+        raise HTTPException(status_code=400, detail=str(err))
     return templates.TemplateResponse("project_list.html.jinja", {
-        "request": request
+        "request": request,
+        "response": json.dumps(response, default=json_serial)
     })
 
 
@@ -109,21 +126,28 @@ def show_new_project(
     return templates.TemplateResponse("project_form.html.jinja", {
         "request": request,
         "schema": json.dumps(schema),
-        "id": "",
-        "title": "Project"
+        "instance": "{}",
     })
 
 
 @router.get("/project/{id}", response_class=HTMLResponse)
-def show_project_with_id(
+async def show_project_with_id(
         request: Request, 
         id: str = Path(None, description="Project identifier")):
     """
     Displaying project form with existing data, accessed by its id
     """
-    return templates.TemplateResponse("template_form.html.jinja", {
+    try:
+        response = await crud.project.get(
+            collection=db.projects,
+            id=id)
+    except crud.NoResultsError:
+        raise HTTPException(status_code=404, detail="NoResults")
+    except BaseException as err:
+        raise HTTPException(status_code=400, detail=str(err))
+
+    return templates.TemplateResponse("project_form.html.jinja", {
         "request": request,
         "schema": json.dumps(project_schema),
-        "id": id,
-        "title": "Project"
+        "instance": json.dumps(response, default=json_serial),
     })

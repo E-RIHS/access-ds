@@ -1,0 +1,101 @@
+{% extends "base.html.jinja" %}
+
+{% block title %}Projects{% endblock %}
+
+{% block head %}
+    {{ super() }}
+{% endblock %}
+
+{% block content %}
+    <v-banner color="primary" class="elevation-5 px-10">
+        <span class="white--text text-h4 px-10">Projects</span>
+    </v-banner>
+
+    <v-container>
+        <v-card class="mt-6">
+            <v-card-title>
+                <v-spacer></v-spacer>
+                <v-text-field
+                    v-model="search"
+                    append-icon="mdi-magnify"
+                    label="Search"
+                    single-line
+                    hide-details></v-text-field>
+                    <v-btn
+                        color="primary"
+                        @click="openForm()"
+                        class="ml-4">
+                        <v-icon left>mdi-plus</v-icon>
+                        New draft
+                    </v-btn>
+            </v-card-title>
+
+            <v-data-table
+                :headers="headers"
+                :items="tableData.data"
+                :server-items-length="tableData.query_parameters.total"
+                :options.sync="options"
+                :footer-props="{'items-per-page-options':[10, 50, 100, -1]}">
+
+                <template v-slot:item.id="{ item }">
+                    <v-icon
+                        small
+                        class="mr-2"
+                        color="primary"
+                        @click="openForm(item)">
+                            mdi-file-eye-outline
+                    </v-icon>
+                </template>
+            </v-data-table>
+
+        </v-card>
+    </v-container>
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript">
+        const tableData = '{{ response | safe }}'
+
+        new Vue({
+            el: '#app',
+
+            vuetify: new Vuetify(),
+
+            data: {
+                appBarDropdown: false,
+
+                tableData: JSON.parse(tableData),
+
+                headers: [
+                    {text: 'Id', value:'id', sortable: false},
+                    {text: 'Version', value: 'version'},
+                    {text: 'Title', value: 'title'},
+                    {text: 'State', value: 'state'}
+                ],
+                projects: [],
+                totalProjects: 0,
+                options: {
+                    sortBy: ['id', 'version'],
+                    multiSort: true},
+                search: '',
+
+                alert: false,
+                alertType: "info",
+                alertText: ""
+            },
+
+            created() {
+            },
+
+            watch: {
+            },
+
+            methods: {
+                openForm(item = null) {
+                    url = "/project/" + (item ? item.id : "new")
+                    window.open(url, "_self")
+                },
+            }
+        })
+    </script>
+{% endblock %}

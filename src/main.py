@@ -20,7 +20,8 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Adding some routes to our main application
-app.include_router(routers.api.router)
+app.include_router(routers.schema_api.router)
+app.include_router(routers.project_api.router)
 app.include_router(routers.ui.router)
 
 
