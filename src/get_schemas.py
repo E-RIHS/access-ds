@@ -1,10 +1,10 @@
 from pathlib import Path
-import json
 
 import requests
+import asyncio
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 import core
-import crud
 
 
 def get_list():
@@ -17,7 +17,7 @@ def get_list():
                 extensions = Path(file["path"]).suffixes
                 extensions.reverse()
                 if extensions[0] == ".json" and extensions[1] == ".schema":
-                    schema_list.append(file['path'])     
+                    schema_list.append(file['path'])
     return schema_list
 
 
@@ -27,18 +27,38 @@ def get_schema(path):
         return response.json()
 
 
-def store_schema_in_db(schema):
-    pass
+async def drop_schema_collection(db: AsyncIOMotorDatabase):
+    existing_collections = await db.list_collection_names()
+    if "schemas" in existing_collections:
+        print("Drop schemas collection in database")
+        await db.drop_collection("schemas")
 
 
+async def store_schema_in_db(db: AsyncIOMotorDatabase, schema: dict):
+    print(f"Store schema '{schema['$id']}'")
+    await db.schemas.insert_one(schema)
 
-schema_list = get_list()
-for path in schema_list:
-    schema = get_schema(path)
-    if "$id" in schema: 
-        print(f"Schema '{schema['$id']}' in file '/{path}'")
 
-# TODO: check if all $id's are unique (len of set)
-# TODO: drop schemas
-# TODO: store schemas
+async def main():
+    client = AsyncIOMotorClient(core.settings.mongo_conn_str)
+    db = client[core.settings.mongo_db]
 
+    schema_list = get_list()
+    schemas = {}
+
+    for path in schema_list:
+        s = get_schema(path)
+        if "$id" in s: 
+            if s['$id'] in schemas:
+                raise Exception(f"Found another instance of {s['$id']} in file '/{path}'")
+            schemas[s['$id']] = s
+            print(f"Found schema '{s['$id']}' in file '/{path}'")
+
+    if len(schemas) > 0:
+        await drop_schema_collection(db)
+        for s in schemas.values():
+            await store_schema_in_db(db, s)
+
+
+if __name__ == '__main__' and __package__ is None:
+    loop = asyncio.run(main())
