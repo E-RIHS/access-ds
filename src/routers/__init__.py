@@ -1,1 +1,1 @@
-from . import schema_api, project_api, ui
+from . import schema_api, default_schema_api, project_api, ui
