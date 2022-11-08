@@ -27,16 +27,25 @@ def get_schema(path):
         return response.json()
 
 
-async def drop_schema_collection(db: AsyncIOMotorDatabase):
+def get_default_schemas():
+    file = "/default_schema.conf.json"
+    response = requests.get(core.settings.schema_download_url + file)
+    if response.status_code == 200:
+        print(f"Fetched default schemas in file {file}")
+        return response.json()
+
+
+async def drop_collection(db: AsyncIOMotorDatabase, collection: str):
     existing_collections = await db.list_collection_names()
-    if "schemas" in existing_collections:
-        print("Drop schemas collection in database")
-        await db.drop_collection("schemas")
+    if collection in existing_collections:
+        print(f"Drop {collection} collection in database")
+        await db.drop_collection(collection)
 
 
-async def store_schema_in_db(db: AsyncIOMotorDatabase, schema: dict):
-    print(f"Store schema '{schema['$id']}'")
-    await db.schemas.insert_one(schema)
+async def store(db: AsyncIOMotorDatabase, collection: str, document: dict):
+    name = document['$id'] if "$id" in document else document['resource']
+    print(f"Store in {collection}: '{name}'")
+    await db[collection].insert_one(document)
 
 
 async def main():
@@ -55,10 +64,20 @@ async def main():
             print(f"Found schema '{s['$id']}' in file '/{path}'")
 
     if len(schemas) > 0:
-        await drop_schema_collection(db)
+        await drop_collection(db=db, collection="schemas")
         for s in schemas.values():
-            await store_schema_in_db(db, s)
+            await store(db, "schemas", s)
 
+    default_schemas = get_default_schemas()
+    if len(default_schemas) > 0:
+        await drop_collection(db=db, collection="default_schemas")
+        for resource, default in default_schemas.items():
+            document = {
+                "resource": resource,
+                "default": default
+            }
+            await store(db, "default_schemas", document)
+            
 
 if __name__ == '__main__' and __package__ is None:
     loop = asyncio.run(main())
