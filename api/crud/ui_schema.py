@@ -1,4 +1,4 @@
 from crud.base import CRUDBase
 
 
-schema = CRUDBase()
+ui_schema = CRUDBase()

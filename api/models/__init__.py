@@ -1,10 +1,5 @@
 from .schema_config import SchemaConfig
-from .schema import (
-    Schema, 
-    SchemaShort, 
-    SchemaUi, 
-    SchemaUiShort,
-    SchemaI18n,
-    SchemaI18nShort,
-    SchemaDefaults,
-    SchemaDefaultsShort)
+from .json_schema import JsonSchema, JsonSchemaShort, JsonSchemaUpdate, JsonSchemaList
+from .ui_schema import UiSchema, UiSchemaShort, UiSchemaUpdate, UiSchemaList
+from .i18n_schema import I18nSchema, I18nSchemaShort, I18nSchemaUpdate, I18nSchemaList
+from .default_dataset import DefaultDataset, DefaultDatasetShort, DefaultDatasetUpdate, DefaultDatasetList

@@ -1,4 +1,4 @@
 from crud.base import CRUDBase
 
 
-schema_i18n = CRUDBase()
+i18n_schema = CRUDBase()

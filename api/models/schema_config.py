@@ -17,7 +17,7 @@ class SchemaConfig(BaseModel):
         description="Category identifier",
         min_length=1,
         max_length=20)
-    schema: str = Field(...)
+    json_schema: str = Field(...)
     schema_ui: Optional[str] = Field(None)
     schema_i18n: Optional[str] = Field(None)
     schema_defaults: Optional[str] = Field(None)
