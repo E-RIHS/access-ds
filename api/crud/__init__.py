@@ -8,3 +8,5 @@ from .i18n_schema import i18n_schema
 from .default_dataset import default_dataset
 
 from .schema_config import schema_config
+
+from .generic import generic
