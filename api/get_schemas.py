@@ -5,6 +5,7 @@ import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 import core
+from models.json_schema import JsonSchemaUpdate
 
 
 def get_list():
@@ -27,12 +28,12 @@ def get_schema(path):
         return response.json()
 
 
-def get_default_schemas():
-    file = "/default_schema.conf.json"
-    response = requests.get(core.settings.schema_download_url + file)
-    if response.status_code == 200:
-        print(f"Fetched default schemas in file {file}")
-        return response.json()
+# def get_default_schemas():
+#     file = "/default_schema.conf.json"
+#     response = requests.get(core.settings.schema_download_url + file)
+#     if response.status_code == 200:
+#         print(f"Fetched default schemas in file {file}")
+#         return response.json()
 
 
 async def drop_collection(db: AsyncIOMotorDatabase, collection: str):
@@ -44,8 +45,11 @@ async def drop_collection(db: AsyncIOMotorDatabase, collection: str):
 
 async def store(db: AsyncIOMotorDatabase, collection: str, document: dict):
     name = document['$id'] if "$id" in document else document['resource']
+    json_schema = JsonSchemaUpdate(
+        name=name,
+        data=document)
     print(f"Store in {collection}: '{name}'")
-    await db[collection].insert_one(document)
+    await db[collection].insert_one(json_schema.dict())
 
 
 async def main():
@@ -64,19 +68,23 @@ async def main():
             print(f"Found schema '{s['$id']}' in file '/{path}'")
 
     if len(schemas) > 0:
-        await drop_collection(db=db, collection="schemas")
+        await drop_collection(
+            db=db, 
+            collection="schemas")
         for s in schemas.values():
-            await store(db, "schemas", s)
+            await store(db=db, 
+                collection="json_schemas", 
+                document=s)
 
-    default_schemas = get_default_schemas()
-    if len(default_schemas) > 0:
-        await drop_collection(db=db, collection="default_schemas")
-        for resource, default in default_schemas.items():
-            document = {
-                "resource": resource,
-                "default": default
-            }
-            await store(db, "default_schemas", document)
+    # default_schemas = get_default_schemas()
+    # if len(default_schemas) > 0:
+    #     await drop_collection(db=db, collection="default_schemas")
+    #     for resource, default in default_schemas.items():
+    #         document = {
+    #             "resource": resource,
+    #             "default": default
+    #         }
+    #         await store(db, "default_schemas", document)
             
 
 if __name__ == '__main__' and __package__ is None:
