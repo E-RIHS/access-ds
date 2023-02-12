@@ -14,9 +14,9 @@ def translate_from_mongo(obj: dict):
     """
     if obj is not None:
         new_obj = {"id": str(obj.pop("_id"))}
-        if "_schema" in obj:
-            new_obj["$schema"] = obj.pop("_schema")
-        new_obj.update(obj)
+        #if "_schema" in obj:
+        #    new_obj["$schema"] = obj.pop("_schema")
+        #new_obj.update(obj)
         return new_obj
     else:
         return None
@@ -27,10 +27,10 @@ def translate_to_mongo(obj: dict):
     Changes $schema into _schema
     """
     if obj is not None:
-        if "$schema" in obj:
-            new_obj = {"_schema": obj.pop("$schema")}
-            new_obj.update(obj)
-            return new_obj
+        #if "$schema" in obj:
+        #    new_obj = {"_schema": obj.pop("$schema")}
+        #    new_obj.update(obj)
+        #    return new_obj
         return obj
     else:
         return None

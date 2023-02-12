@@ -12,7 +12,7 @@ from models.common import (
 
 class _SchemaConfigBase(BaseModel):
     resource: Resource = Field(...)
-    category: str = Field(..., 
+    category: Optional[str] = Field(None, 
         description="Category identifier",
         min_length=1,
         max_length=20)
@@ -20,7 +20,7 @@ class _SchemaConfigBase(BaseModel):
     schema_ui: Optional[str] = Field(None)
     schema_i18n: Optional[str] = Field(None)
     schema_defaults: Optional[str] = Field(None)
-    active: bool = Field(False)
+    draft: bool = Field(False)
     depreciated: bool = Field(False)
 
 

@@ -2,13 +2,16 @@ from pathlib import Path
 
 import requests
 import asyncio
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase, AsyncIOMotorCollection
+from bson import ObjectId
 
 import core
 from models.json_schema import JsonSchemaUpdate
+from models.schema_config import SchemaConfigUpdate
 
 
-def get_list():
+
+def get_list_from_github():
     schema_list = []
     response = requests.get(core.settings.schema_file_list_url)
     if response.status_code == 200:
@@ -22,45 +25,72 @@ def get_list():
     return schema_list
 
 
-def get_schema(path):
+def get_schema_from_github(path):
     response = requests.get(core.settings.schema_download_url + path)
     if response.status_code == 200:
         return response.json()
 
 
-# def get_default_schemas():
-#     file = "/default_schema.conf.json"
-#     response = requests.get(core.settings.schema_download_url + file)
-#     if response.status_code == 200:
-#         print(f"Fetched default schemas in file {file}")
-#         return response.json()
+def get_config_from_github():
+    file = "/schema.conf.json"
+    response = requests.get(core.settings.schema_download_url + file)
+    if response.status_code == 200:
+        print(f"Fetched schema configurations from github")
+        return response.json()
 
 
-async def drop_collection(db: AsyncIOMotorDatabase, collection: str):
-    existing_collections = await db.list_collection_names()
-    if collection in existing_collections:
-        print(f"Drop {collection} collection in database")
-        await db.drop_collection(collection)
+async def get_json_schema_by_name(collection: AsyncIOMotorCollection, name: str):
+    await collection.find_one({"name": name})
 
 
-async def store(db: AsyncIOMotorDatabase, collection: str, document: dict):
+async def create_json_schema(collection: AsyncIOMotorCollection, document: dict):
     name = document['$id'] if "$id" in document else document['resource']
     json_schema = JsonSchemaUpdate(
         name=name,
         data=document)
-    print(f"Store in {collection}: '{name}'")
-    await db[collection].insert_one(json_schema.dict())
+    print(f"Create in json_collection: '{name}'")
+    await collection.insert_one(json_schema.dict())
+
+
+async def replace_json_schema(collection: AsyncIOMotorCollection, id: str, document: dict):
+    name = document['$id'] if "$id" in document else document['resource']
+    json_schema = JsonSchemaUpdate(
+        name=name,
+        data=document)
+    print(f"Replace in json_collection: '{name}'")
+    await collection.replace_one({"_id": ObjectId(id)}, json_schema.dict())
+
+
+async def get_config_by_name(collection: AsyncIOMotorCollection, name: str):
+    await collection.find_one({"name": name})
+
+
+async def create_config(collection: AsyncIOMotorCollection, document: dict):
+    name = document['$id'] if "$id" in document else document['resource']
+    config = SchemaConfigUpdate(**document)
+    print(f"Create in schema_config: '{name}'")
+    await collection.insert_one(config.dict())
+
+
+async def replace_config(collection: AsyncIOMotorCollection, id: str, document: dict):
+    name = document['$id'] if "$id" in document else document['resource']
+    config = SchemaConfigUpdate(**document)
+    print(f"Replace in schema_config: '{name}'")
+    await collection.replace_one({"_id": ObjectId(id)}, config.dict())
 
 
 async def main():
     client = AsyncIOMotorClient(core.settings.mongo_conn_str)
     db = client[core.settings.mongo_db]
+    json_schema_collection = db.json_schema
+    schema_config_collection = db.schema_config
 
-    schema_list = get_list()
+    # fetch list of schemas from github
     schemas = {}
+    schema_list = get_list_from_github()
 
     for path in schema_list:
-        s = get_schema(path)
+        s = get_schema_from_github(path)
         if "$id" in s: 
             if s['$id'] in schemas:
                 raise Exception(f"Found another instance of {s['$id']} in file '/{path}'")
@@ -68,24 +98,39 @@ async def main():
             print(f"Found schema '{s['$id']}' in file '/{path}'")
 
     if len(schemas) > 0:
-        await drop_collection(
-            db=db, 
-            collection="schemas")
         for s in schemas.values():
-            await store(db=db, 
-                collection="json_schemas", 
-                document=s)
+            # update if existing schema, otherwise create new
+            existing = await get_json_schema_by_name(
+                collection=json_schema_collection,
+                name = s["$id"])
+            if existing is None:
+                await create_json_schema(
+                    collection=json_schema_collection,
+                    document=s)
+            else:
+                await replace_json_schema(
+                    collection=json_schema_collection,
+                    id=existing["_id"],
+                    document=s)
 
-    # default_schemas = get_default_schemas()
-    # if len(default_schemas) > 0:
-    #     await drop_collection(db=db, collection="default_schemas")
-    #     for resource, default in default_schemas.items():
-    #         document = {
-    #             "resource": resource,
-    #             "default": default
-    #         }
-    #         await store(db, "default_schemas", document)
-            
+    # fetch schema configurations from github
+    configs = get_config_from_github()
+    if len(configs) > 0:
+        for c in configs:
+            # update if existing config, otherwise create new
+            existing = await get_config_by_name(
+                    collection=schema_config_collection,
+                    name = c["name"])
+            if existing is None:
+                await create_config(
+                    collection=schema_config_collection,
+                    document=c)
+            else:
+                await replace_config(
+                    collection=schema_config_collection,
+                    id=existing["_id"],
+                    document=c)
+
 
 if __name__ == '__main__' and __package__ is None:
     loop = asyncio.run(main())
