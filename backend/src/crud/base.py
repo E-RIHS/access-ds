@@ -16,7 +16,7 @@ def translate_from_mongo(obj: dict):
         new_obj = {"id": str(obj.pop("_id"))}
         #if "_schema" in obj:
         #    new_obj["$schema"] = obj.pop("_schema")
-        #new_obj.update(obj)
+        new_obj.update(obj)
         return new_obj
     else:
         return None
