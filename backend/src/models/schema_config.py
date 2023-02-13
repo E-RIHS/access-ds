@@ -10,29 +10,35 @@ from models.common import (
     QueryParameters)
 
 
-class _SchemaConfigBase(BaseModel):
+class _SchemaConfig(BaseModel):
     resource: Resource = Field(...)
     category: Optional[str] = Field(None, 
         description="Category identifier",
         min_length=1,
         max_length=20)
     json_schema: str = Field(...)
-    schema_ui: Optional[str] = Field(None)
-    schema_i18n: Optional[str] = Field(None)
-    schema_defaults: Optional[str] = Field(None)
+    ui_schema: Optional[str] = Field(None)
+    i18n_schema: Optional[str] = Field(None)
+    default_dataset: Optional[str] = Field(None)
     draft: bool = Field(False)
     depreciated: bool = Field(False)
 
 
-class SchemaConfig(LoggingBaseModel, _SchemaConfigBase, NameBaseModel, IdBaseModel):
+class _Resolved(BaseModel):
+    json_schema_resolved: dict = Field(...)
+    ui_schema_resolved: Optional[dict] = Field(None)
+    i18n_schema_resolved: Optional[dict] = Field(None)
+    default_dataset_resolved: Optional[dict] = Field(None)
+
+class SchemaConfig(LoggingBaseModel, _Resolved, _SchemaConfig, NameBaseModel, IdBaseModel):
     pass
 
 
-class SchemaConfigShort(_SchemaConfigBase, NameBaseModel, IdBaseModel):
+class SchemaConfigShort(_SchemaConfig, NameBaseModel, IdBaseModel):
     pass
 
 
-class SchemaConfigUpdate(_SchemaConfigBase, NameBaseModel):
+class SchemaConfigUpdate(_SchemaConfig, NameBaseModel):
     pass
 
 

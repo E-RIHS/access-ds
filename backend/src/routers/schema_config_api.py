@@ -29,15 +29,38 @@ async def get_all_schema_configs():
 
 
 @router.get("/{id}", response_model=models.SchemaConfig)
-async def get_schema_config_by_id(
+async def get_resolved_schema_config_by_id(
         id: str = Path(None, description="The id of the schema configuration set")):
     """
-    Return a single JSON Schema configuration set by its id.
+    Return a single, fully resolved JSON Schema configuration set by its id.
     """
     try:
         response = await crud.schema_config.get(
             collection=db.schema_configs, 
             id=id)
+        # resolve json_schema
+        json_schema = await crud.json_schema.get(
+            collection=db.json_schemas,
+            id=response["json_schema"])
+        response["json_schema_resolved"] = json_schema["data"]
+        # resolve ui_schema
+        if response["ui_schema"] is not None:
+            ui_schema = await crud.ui_schema.get(
+                collection=db.ui_schemas,
+                id=response["ui_schema"])
+            response["ui_schema_resolved"] = ui_schema["data"]
+        # resolve i18n_schema
+        if response["ui_schema"] is not None:
+            i18n_schema = await crud.i18n_schema.get(
+                collection=db.i18n_schemas,
+                id=response["i18n_schema"])
+            response["i18n_schema_resolved"] = i18n_schema["data"]
+        # resolve default_dataset
+        if response["default_dataset"] is not None:
+            default_dataset = await crud.default_dataset.get(
+                collection=db.default_dataset,
+                id=response["default_dataset"])
+            response["default_dataset_resolved"] = default_dataset["data"]
     except crud.NoResultsError:
         raise HTTPException(status_code=404, detail="NoResults")
     except BaseException as err:
