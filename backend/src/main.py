@@ -1,8 +1,10 @@
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.datastructures import QueryParams
 
 import routers
+import core
 
 
 # Main API application
@@ -50,3 +52,13 @@ async def fix_list_query_params(request: Request, call_next):
     request.scope["query_string"] = str(request.query_params).encode("ascii")
     response = await call_next(request)
     return response
+
+
+origins = [i.strip() for i in core.settings.cors_origins.split(',')]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
