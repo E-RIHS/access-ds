@@ -117,6 +117,13 @@ async def main():
     configs = get_config_from_github()
     if len(configs) > 0:
         for c in configs:
+            # resolve json-schema
+            json_schema = await get_json_schema_by_name(
+                collection=json_schema_collection,
+                name = c["json_schema"])
+            if json_schema is None:
+                raise Exception(f"Schema config {c['name']} refers to inexistent JSON schema '{c['json_schema']}'")
+            c['json_schema'] = str(json_schema["_id"])
             # update if existing config, otherwise create new
             existing = await get_config_by_name(
                     collection=schema_config_collection,
