@@ -40,7 +40,7 @@ def get_config_from_github():
 
 
 async def get_json_schema_by_name(collection: AsyncIOMotorCollection, name: str):
-    await collection.find_one({"name": name})
+    return await collection.find_one({"name": name})
 
 
 async def create_json_schema(collection: AsyncIOMotorCollection, document: dict):
@@ -48,7 +48,7 @@ async def create_json_schema(collection: AsyncIOMotorCollection, document: dict)
     json_schema = JsonSchemaUpdate(
         name=name,
         data=document)
-    print(f"Create in json_collection: '{name}'")
+    print(f"Create in json_schemas: '{name}'")
     await collection.insert_one(json_schema.dict())
 
 
@@ -57,33 +57,33 @@ async def replace_json_schema(collection: AsyncIOMotorCollection, id: str, docum
     json_schema = JsonSchemaUpdate(
         name=name,
         data=document)
-    print(f"Replace in json_collection: '{name}'")
+    print(f"Replace in json_schemas: '{name}'")
     await collection.replace_one({"_id": ObjectId(id)}, json_schema.dict())
 
 
 async def get_config_by_name(collection: AsyncIOMotorCollection, name: str):
-    await collection.find_one({"name": name})
+    return await collection.find_one({"name": name})
 
 
 async def create_config(collection: AsyncIOMotorCollection, document: dict):
-    name = document['$id'] if "$id" in document else document['resource']
+    name = document['name']
     config = SchemaConfigUpdate(**document)
-    print(f"Create in schema_config: '{name}'")
+    print(f"Create in schema_configs: '{name}'")
     await collection.insert_one(config.dict())
 
 
 async def replace_config(collection: AsyncIOMotorCollection, id: str, document: dict):
-    name = document['$id'] if "$id" in document else document['resource']
+    name = document['name']
     config = SchemaConfigUpdate(**document)
-    print(f"Replace in schema_config: '{name}'")
+    print(f"Replace in schema_configs: '{name}'")
     await collection.replace_one({"_id": ObjectId(id)}, config.dict())
 
 
 async def main():
     client = AsyncIOMotorClient(core.settings.mongo_conn_str)
     db = client[core.settings.mongo_db]
-    json_schema_collection = db.json_schema
-    schema_config_collection = db.schema_config
+    json_schema_collection = db.json_schemas
+    schema_config_collection = db.schema_configs
 
     # fetch list of schemas from github
     schemas = {}
