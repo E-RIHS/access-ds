@@ -1,5 +1,15 @@
 /mongo_container/var
 
+.DS_Store
+node_modules
+/dist
+*.local
+*.log
+.idea
+yarn.lock
+
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
