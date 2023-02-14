@@ -39,9 +39,9 @@ async def create_record(
 
     # create the record
     try:
-        print(schema_config.resource)
+        print(schema_config["resource"])
         response = await crud.generic.create(
-            collection=db[schema_config.resource.lower()],
+            collection=db[schema_config["resource"].lower()],
             data=data)
     except crud.DuplicateKeyError:
         raise HTTPException(status_code=422, detail="DuplicateKey")
