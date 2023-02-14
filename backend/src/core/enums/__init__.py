@@ -1,0 +1,1 @@
+from core.enums.resource import Resource
