@@ -13,6 +13,9 @@ source . ../venv/bin/activate
 # install (or update) the dependencies
 pip install -r requirements.txt
 
-# and finally, run the application using the Uvicorn web server:
+# get schemas and configurations from Github
 cd src
+python get_schemas.py
+
+# and finally, run the application using the Uvicorn web server:
 uvicorn main:app --reload
