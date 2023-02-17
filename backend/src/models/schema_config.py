@@ -6,7 +6,6 @@ from core.enums import Resource
 from models.common import (
     IdBaseModel, 
     NameBaseModel, 
-    LoggingBaseModel, 
     QueryParameters)
 
 
@@ -30,7 +29,7 @@ class _Resolved(BaseModel):
     i18n_schema_resolved: Optional[dict] = Field(None)
     default_dataset_resolved: Optional[dict] = Field(None)
 
-class SchemaConfig(LoggingBaseModel, _Resolved, _SchemaConfig, NameBaseModel, IdBaseModel):
+class SchemaConfig(_Resolved, _SchemaConfig, NameBaseModel, IdBaseModel):
     pass
 
 

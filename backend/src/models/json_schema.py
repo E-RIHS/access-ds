@@ -6,11 +6,10 @@ from models.common import (
     IdBaseModel, 
     NameBaseModel, 
     DataBaseModel, 
-    LoggingBaseModel, 
     QueryParameters)
 
 
-class JsonSchema(LoggingBaseModel, DataBaseModel, NameBaseModel, IdBaseModel):
+class JsonSchema(DataBaseModel, NameBaseModel, IdBaseModel):
     pass
 
 

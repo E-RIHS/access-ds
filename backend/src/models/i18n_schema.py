@@ -6,11 +6,10 @@ from models.common import (
     IdBaseModel, 
     NameBaseModel, 
     DataBaseModel, 
-    LoggingBaseModel, 
     QueryParameters)
 
 
-class I18nSchema(LoggingBaseModel, DataBaseModel, NameBaseModel, IdBaseModel):
+class I18nSchema(DataBaseModel, NameBaseModel, IdBaseModel):
     pass
 
 

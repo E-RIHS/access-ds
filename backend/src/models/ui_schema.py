@@ -6,11 +6,10 @@ from models.common import (
     IdBaseModel, 
     NameBaseModel, 
     DataBaseModel, 
-    LoggingBaseModel, 
     QueryParameters)
 
 
-class UiSchema(LoggingBaseModel, DataBaseModel, NameBaseModel, IdBaseModel):
+class UiSchema(DataBaseModel, NameBaseModel, IdBaseModel):
     pass
 
 

@@ -6,11 +6,10 @@ from models.common import (
     IdBaseModel, 
     NameBaseModel, 
     DataBaseModel, 
-    LoggingBaseModel, 
     QueryParameters)
 
 
-class DefaultDataset(LoggingBaseModel, DataBaseModel, NameBaseModel, IdBaseModel):
+class DefaultDataset(DataBaseModel, NameBaseModel, IdBaseModel):
     pass
 
 
