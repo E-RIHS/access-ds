@@ -58,9 +58,13 @@ export default {
         },
         saveGenericDataset() {
             if (this.isValid){
+                let dataset = {
+                    '$schema': this.jsonSchema.$id,
+                    '$config': this.config,
+                    ...this.data
+                }
                 console.log('POST /generic/')
-                this.data.$config = this.config
-                api.post('/generic/', this.data)
+                api.post('/generic/', dataset)
                     .then(response => {
                         this.$router.push("/generic")
                     })
