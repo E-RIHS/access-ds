@@ -1,7 +1,6 @@
 <script>
 import { JsonForms } from '@jsonforms/vue2'
 import { vuetifyRenderers, additionalRenderers } from '@jsonforms/vue2-vuetify'
-
 import { createAjv, Generate } from '@jsonforms/core'
 import WTitlebanner from '@/components/WTitlebanner.vue'
 import api from '@/utils/request'

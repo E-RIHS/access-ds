@@ -55,16 +55,15 @@ export default {
             // api call
             console.log('GET /schema_config/')
             api.get('/schema_config/', {params: parameters})
-            .then(response => {
-                this.configs = response.data.data
-                this.tableTotal = response.data.query_parameters.total
-                this.tableLoading = false
-                this.getAllSchemaNames()
-                console.log(response.data)
-            })
-            .catch(error => {
-                console.warn(error)
-            })
+                .then(response => {
+                    this.configs = response.data.data
+                    this.tableTotal = response.data.query_parameters.total
+                    this.tableLoading = false
+                    this.getAllSchemaNames()
+                })
+                .catch(error => {
+                    console.warn(error)
+                })
         },
         
         getAllSchemaNames() {
