@@ -46,15 +46,17 @@ export default {
                 for (const schemaType of schemaTypes) {
                     if (schemaType in this.configs[i]) {
                         let id = this.configs[i][schemaType]
-                        let url = '/' + schemaType + '/' + id + '/name'
-                        console.log('GET ' + url)
-                        api.get(url)
-                            .then(response => {
-                                this.configs[i][schemaType] = response.data.name
-                            })
-                            .catch(error => {
-                                console.warn(error)
-                            })
+                        if (id) {
+                            let url = '/' + schemaType + '/' + id + '/name'
+                            console.log('GET ' + url)
+                            api.get(url)
+                                .then(response => {
+                                    this.configs[i][schemaType] = response.data.name
+                                })
+                                .catch(error => {
+                                    console.warn(error)
+                                })
+                        }
                     }
                 }
             }
