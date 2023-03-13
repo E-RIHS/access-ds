@@ -40,17 +40,17 @@ export default {
         },
         
         getAllSchemaNames() {
-            const resources = ["json_schema", "ui_schema", "i18n_schema", "default_dataset"]
+            const schemaTypes = ["json_schema", "ui_schema", "i18n_schema", "default_dataset"]
 
             for (let i = 0; i < this.configs.length; i++) {
-                for (const resource of resources) {
-                    if (resource in this.configs[i]) {
-                        let id = this.configs[i][resource]
-                        let url = '/' + resource + '/' + id + '/name'
+                for (const schemaType of schemaTypes) {
+                    if (schemaType in this.configs[i]) {
+                        let id = this.configs[i][schemaType]
+                        let url = '/' + schemaType + '/' + id + '/name'
                         console.log('GET ' + url)
                         api.get(url)
                             .then(response => {
-                                this.configs[i][resource] = response.data.name
+                                this.configs[i][schemaType] = response.data.name
                             })
                             .catch(error => {
                                 console.warn(error)
