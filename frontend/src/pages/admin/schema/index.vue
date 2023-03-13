@@ -19,20 +19,48 @@ export default {
                 { text: 'UI schema', value: 'ui_schema' },
                 { text: 'Default dataset', value: 'default_dataset' },
             ],
-            tableLoading: true
+            tableOptions: {
+                "sortBy": ['name'],
+                "sortDesc": [false],
+                "multiSort": true,
+            },
+            tableLoading: true,
+            tableTotal: 0
         }
     },
+
     mounted() {
-        this.getConfigs()
+        //this.getConfigs()
     },
+
+    watch: {
+        tableOptions() {
+            this.getConfigs()
+        },
+    },
+
     methods: {
         getConfigs() {
+            this.tableLoading = true
+
+            // query parameters
+            let skip = (this.tableOptions.page - 1) * this.tableOptions.itemsPerPage
+            let parameters = {
+                skip: isNaN(skip) ? null : skip,
+                limit: this.tableOptions.itemsPerPage,
+                sort_by: this.tableOptions.sortBy,
+                sort_desc: this.tableOptions.sortDesc
+            }
+
+            // api call
             console.log('GET /schema_config/')
-            api.get('/schema_config/')
+            api.get('/schema_config/', {params: parameters})
             .then(response => {
                 this.configs = response.data.data
+                this.tableTotal = response.data.query_parameters.total
                 this.tableLoading = false
                 this.getAllSchemaNames()
+                console.log(response.data)
             })
             .catch(error => {
                 console.warn(error)
@@ -73,7 +101,10 @@ export default {
             <v-data-table
                 :headers="tableHeaders"
                 :items="configs"
+                :server-items-length="tableTotal"
+                :options.sync="tableOptions"
                 :loading="tableLoading"
+                :footer-props="{'items-per-page-options':[10, 50, 100, -1]}"
                 class="elevation-2"
             ></v-data-table>
             <pre>{{ configs }}</pre>

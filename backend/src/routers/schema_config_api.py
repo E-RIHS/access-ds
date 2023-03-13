@@ -1,4 +1,7 @@
-from fastapi import APIRouter, HTTPException, Path
+from typing import Optional, List
+import json
+
+from fastapi import APIRouter, HTTPException, Path, Query
 from motor.motor_asyncio import AsyncIOMotorClient
 
 import core
@@ -18,13 +21,33 @@ db = client[core.settings.mongo_db]
 
 
 @router.get("/", response_model=models.SchemaConfigList)
-async def get_all_schema_configs():
+async def search_schema_configs(
+        skip: Optional[int] = Query(0, description="Skip the x first results"),
+        limit: Optional[int] = Query(10, description="Return x results"), 
+        find: Optional[str] = Query(None, description="Mongodb-style find query in JSON"),
+        sort_by: Optional[List[str]] = Query(["name"], description="Sorting options (array of strings)"),
+        sort_desc: Optional[List[bool]] = Query([], description="Sort descending (arry of booleans)")):
     """
-    Return all JSON Schema configuration sets.
+    Search JSON Schema configuration sets.
     """
-    response = await crud.schema_config.search(
-        collection=db.schema_configs,
-        limit=0)
+
+    if find is not None:
+        find = json.loads(find)
+    else:
+        find = {}
+
+    if len(sort_desc) > 0 and len(sort_desc) != len(sort_by):
+        raise HTTPException(status_code=400, detail="ParameterError")
+    try: 
+        response = await crud.schema_config.search(
+            collection=db.schema_configs,
+            find=find,
+            skip=skip,
+            limit=limit,
+            sort_by=sort_by,
+            sort_desc=sort_desc)
+    except BaseException as err:
+        raise HTTPException(status_code=400, detail=str(err))
     return response
 
 
