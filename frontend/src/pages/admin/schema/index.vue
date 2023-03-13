@@ -3,7 +3,7 @@ import WTitlebanner from '@/components/WTitlebanner.vue'
 import api from '@/utils/request'
 
 export default {
-    name: 'SchemaConfigPage',
+    name: 'SchemaConfigIndexPage',
     components: {
         WTitlebanner,
     },
@@ -105,9 +105,24 @@ export default {
                 :options.sync="tableOptions"
                 :loading="tableLoading"
                 :footer-props="{'items-per-page-options':[10, 50, 100, -1]}"
-                class="elevation-2"
-            ></v-data-table>
-            <pre>{{ configs }}</pre>
+                class="elevation-2">
+                <template v-slot:item.id="{ item }">
+                    <v-tooltip top>
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn
+                                icon
+                                color="primary"
+                                class="mr-2"
+                                :to="'/admin/schema/' + item.id"
+                                v-bind="attrs"
+                                v-on="on">
+                                <v-icon>mdi-code-json</v-icon>
+                            </v-btn>
+                        </template>
+                        <span>Open configuration</span>
+                    </v-tooltip>
+                </template>
+            </v-data-table>
         </v-container>
     </div>
 </template>
