@@ -45,6 +45,23 @@ async def get_ui_schema_by_id(
     return response
 
 
+@router.get("/{id}/name", response_model=models.UiSchemaShort)
+async def get_ui_schema_name(
+        id: str = Path(None, description="The id of the schema")):
+    """
+    Return the name of a UI Schema by its id.
+    """
+    try:
+        response = await crud.ui_schema.get(
+            collection=db.ui_schemas, 
+            id=id)
+    except crud.NoResultsError:
+        raise HTTPException(status_code=404, detail="NoResults")
+    except BaseException as err:
+        raise HTTPException(status_code=400, detail=str(err))
+    return response
+
+
 @router.post("/", response_model=models.UiSchema)
 async def create_ui_schema(
         data: models.UiSchemaUpdate):

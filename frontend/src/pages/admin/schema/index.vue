@@ -29,13 +29,35 @@ export default {
         getConfigs() {
             console.log('GET /schema_config/')
             api.get('/schema_config/')
-                .then(response => {
-                    this.configs = response.data.data
-                    this.tableLoading = false
-                })
-                .catch(error => {
-                    console.warn(error)
-                })
+            .then(response => {
+                this.configs = response.data.data
+                this.tableLoading = false
+                this.getAllSchemaNames()
+            })
+            .catch(error => {
+                console.warn(error)
+            })
+        },
+        
+        getAllSchemaNames() {
+            const resources = ["json_schema", "ui_schema", "i18n_schema", "default_dataset"]
+
+            for (let i = 0; i < this.configs.length; i++) {
+                for (const resource of resources) {
+                    if (resource in this.configs[i]) {
+                        let id = this.configs[i][resource]
+                        let url = '/' + resource + '/' + id + '/name'
+                        console.log('GET ' + url)
+                        api.get(url)
+                            .then(response => {
+                                this.configs[i][resource] = response.data.name
+                            })
+                            .catch(error => {
+                                console.warn(error)
+                            })
+                    }
+                }
+            }
         },
     }
 }

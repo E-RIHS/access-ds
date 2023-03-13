@@ -45,6 +45,23 @@ async def get_json_schema_by_id(
     return response
 
 
+@router.get("/{id}/name", response_model=models.JsonSchemaShort)
+async def get_json_schema_name(
+        id: str = Path(None, description="The id of the schema")):
+    """
+    Return the name of a JSON Schema by its id.
+    """
+    try:
+        response = await crud.json_schema.get(
+            collection=db.json_schemas, 
+            id=id)
+    except crud.NoResultsError:
+        raise HTTPException(status_code=404, detail="NoResults")
+    except BaseException as err:
+        raise HTTPException(status_code=400, detail=str(err))
+    return response
+
+
 @router.post("/", response_model=models.JsonSchema)
 async def create_json_schema(
         data: models.JsonSchemaUpdate):

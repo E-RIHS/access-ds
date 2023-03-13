@@ -29,8 +29,8 @@ async def get_all_default_datasets():
 
 
 @router.get("/{id}", response_model=models.DefaultDataset)
-async def get_schema_default_data_by_id(
-        id: str = Path(None, description="The id of the schema")):
+async def get_default_dataset_by_id(
+        id: str = Path(None, description="The id of the default dataset")):
     """
     Return a single default dataset by its id.
     """
@@ -45,8 +45,25 @@ async def get_schema_default_data_by_id(
     return response
 
 
+@router.get("/{id}/name", response_model=models.DefaultDatasetShort)
+async def get_default_dataset_name(
+        id: str = Path(None, description="The id of the default dataset")):
+    """
+    Return the name of a default dataset by its id.
+    """
+    try:
+        response = await crud.default_dataset.get(
+            collection=db.default_datasets, 
+            id=id)
+    except crud.NoResultsError:
+        raise HTTPException(status_code=404, detail="NoResults")
+    except BaseException as err:
+        raise HTTPException(status_code=400, detail=str(err))
+    return response
+
+
 @router.post("/", response_model=models.DefaultDataset)
-async def create_schema_default_data(
+async def create_default_dataset(
         data: models.DefaultDatasetUpdate):
     """
     Create a new default dataset.
@@ -66,9 +83,9 @@ async def create_schema_default_data(
 
 
 @router.put("/{id}", response_model=models.DefaultDataset)
-async def replace_schema_default_data(
+async def replace_default_dataset(
         data: models.DefaultDatasetUpdate,
-        id: str = Path(None, description="The id of the schema")):
+        id: str = Path(None, description="The id of the default dataset")):
     """
     Replace a default dataset Schema (full update).
     """
@@ -90,8 +107,8 @@ async def replace_schema_default_data(
 
 
 @router.delete("/{id}", response_model=models.DefaultDataset)
-async def delete_schema_default_data(
-        id: str = Path(None, description="The id of the schema")):
+async def delete_default_dataset(
+        id: str = Path(None, description="The id of the default dataset")):
     """
     Delete a default dataset.
     """
