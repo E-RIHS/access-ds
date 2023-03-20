@@ -4,6 +4,7 @@ import { vuetifyRenderers, additionalRenderers } from '@jsonforms/vue2-vuetify'
 import { createAjv, Generate } from '@jsonforms/core'
 
 import WTitlebanner from '@/components/WTitlebanner.vue'
+import WJsonEditor from '@/components/WJsonEditor.vue'
 import api from '@/utils/request'
 
 const renderers = [...vuetifyRenderers, ...additionalRenderers]
@@ -12,6 +13,7 @@ export default {
     name: 'SchemaConfigDetailPage',
     components: {
         WTitlebanner,
+        WJsonEditor,
         JsonForms
     },
 
@@ -29,7 +31,12 @@ export default {
             renderers: Object.freeze(renderers),
             ajv: createAjv({ useDefaults: true }),
             instance: {},
-            isValid: false
+            isValid: false,
+            editorOptions: {
+                mode: "tree", // text, code, tree (default), form, preview (ro), view (ro),
+                modes: ["tree", "code", "text"],
+                //name: "test"
+            }
         }
     },
 
@@ -95,7 +102,11 @@ export default {
                             </v-tabs>
                         </v-card-title>
                         <v-card-text v-if="schemaTab === 0">
-                            <pre>{{ this.jsonSchema }}</pre>
+                            <w-json-editor 
+                                v-model="jsonSchema"
+                                :plus="true"
+                                :options="editorOptions" 
+                                height="600px"></w-json-editor>
                         </v-card-text>
                         <v-card-text v-if="schemaTab === 1">
                             <pre>{{ this.uiSchema }}</pre>
