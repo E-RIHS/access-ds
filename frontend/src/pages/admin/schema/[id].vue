@@ -109,13 +109,25 @@ export default {
                                 height="600px"></w-json-editor>
                         </v-card-text>
                         <v-card-text v-if="schemaTab === 1">
-                            <pre>{{ this.uiSchema }}</pre>
+                            <w-json-editor 
+                                v-model="uiSchema"
+                                :plus="true"
+                                :options="editorOptions" 
+                                height="600px"></w-json-editor>
                         </v-card-text>
                         <v-card-text v-if="schemaTab === 2">
-                            <pre>{{ this.i18nSchema }}</pre>
+                            <w-json-editor 
+                                v-model="i18nSchema"
+                                :plus="true"
+                                :options="editorOptions" 
+                                height="600px"></w-json-editor>
                         </v-card-text>
                         <v-card-text v-if="schemaTab === 3">
-                            <pre>{{ this.defaultDataset }}</pre>
+                            <w-json-editor 
+                                v-model="defaultDataset"
+                                :plus="true"
+                                :options="editorOptions" 
+                                height="600px"></w-json-editor>
                         </v-card-text>
                     </v-card>
                 </v-col>
@@ -141,7 +153,11 @@ export default {
                             ></json-forms>
                         </v-card-text>
                         <v-card-text v-if="instanceTab === 1">
-                            <pre>{{ this.instance }}</pre>
+                            <w-json-editor 
+                                v-model="instance"
+                                :plus="true"
+                                :options="editorOptions" 
+                                height="600px"></w-json-editor>
                         </v-card-text>
                     </v-card>
                 </v-col>
