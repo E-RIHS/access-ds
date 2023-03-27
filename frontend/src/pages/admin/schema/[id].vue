@@ -201,6 +201,10 @@ export default {
         generateUISchema() {
             this.uiSchema = Generate.uiSchema(this.jsonSchema)
         },
+
+        removeUISchema() {},
+        overwriteUISchema() {},
+        saveNewUISchema() {},
     },
 }
 </script>
@@ -244,18 +248,51 @@ export default {
                             ></w-json-editor>
                         </v-card-text>
                         <v-card-text v-if="schemaTab === 1">
-                            <w-json-editor
-                                v-if="uiSchema !== undefined"
-                                v-model="uiSchema"
-                                :plus="true"
-                                :options="editorOptions"
-                                height="600px"
-                            ></w-json-editor>
-                            <v-btn
-                                v-else
-                                @click="generateUISchema()">
-                                Generate default UI Schema
-                            </v-btn>
+                            <v-card elevation="0">
+                                <v-card-text>
+                                    <w-json-editor
+                                        v-if="uiSchema !== undefined"
+                                        v-model="uiSchema"
+                                        :plus="true"
+                                        :options="editorOptions"
+                                        height="600px"
+                                    ></w-json-editor>
+                                    <div 
+                                        v-else
+                                        class="ma-4 font-italic">
+                                        <strong>No UI Schema defined.</strong><br />
+                                        Select an existing UI Schema (above), or generate a basic UI Schema based on the JSON Schema.
+                                        This <a href="https://jsonforms-editor.netlify.app/" target="_blank"><v-icon x-small color="primary">mdi-open-in-new</v-icon>tool</a> provides a visual UI Schema builder. 
+                                    </div>
+                                </v-card-text>
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <div v-if="uiSchema !== undefined">
+                                        <v-btn
+                                            class="ma-2"
+                                            @click="removeUISchema()">
+                                            Wipe
+                                        </v-btn>
+                                        <v-btn
+                                            class="ma-2"
+                                            @click="overwriteUISchema()">
+                                            Save
+                                        </v-btn>
+                                        <v-btn
+                                            color="primary"
+                                            class="ma-2"
+                                            @click="saveNewUISchema()">
+                                            Save as new...
+                                        </v-btn>
+                                    </div>
+                                    <v-btn
+                                        color="primary"
+                                        class="ma-2"
+                                        @click="generateUISchema()">
+                                        Generate UI Schema
+                                    </v-btn>
+                                </v-card-actions>
+                            </v-card>
                         </v-card-text>
                         <v-card-text v-if="schemaTab === 2">
                             <w-json-editor
