@@ -164,7 +164,7 @@ export default {
                     this.uiSchema = this.config['ui_schema_resolved']
                         ? this.config['ui_schema_resolved']
                         : undefined
-                    delete this.config['i18n_schema_resolved']
+                    delete this.config['ui_schema_resolved']
                     this.i18nSchema = this.config['i18n_schema_resolved']
                         ? this.config['i18n_schema_resolved']
                         : undefined
@@ -202,7 +202,14 @@ export default {
             this.uiSchema = Generate.uiSchema(this.jsonSchema)
         },
 
-        removeUISchema() {},
+        removeUISchema() {
+            this.uiSchema = undefined
+            if ('ui_schema' in this.config) {
+                this.config.ui_schema = undefined
+                console.log(this.config.ui_schema)
+            }
+        },
+
         overwriteUISchema() {},
         saveNewUISchema() {},
     },
@@ -286,6 +293,7 @@ export default {
                                         </v-btn>
                                     </div>
                                     <v-btn
+                                        v-else
                                         color="primary"
                                         class="ma-2"
                                         @click="generateUISchema()">
@@ -345,5 +353,6 @@ export default {
                 </v-col>
             </v-row>
         </v-container>
+        <pre>{{ JSON.stringify(config, " ", 2) }}</pre>
     </div>
 </template>
