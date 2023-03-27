@@ -197,6 +197,10 @@ export default {
             this.instance = event.data
             this.isValid = event.errors.length === 0
         },
+
+        generateUISchema() {
+            this.uiSchema = Generate.uiSchema(this.jsonSchema)
+        },
     },
 }
 </script>
@@ -247,6 +251,11 @@ export default {
                                 :options="editorOptions"
                                 height="600px"
                             ></w-json-editor>
+                            <v-btn
+                                v-else
+                                @click="generateUISchema()">
+                                Generate default UI Schema
+                            </v-btn>
                         </v-card-text>
                         <v-card-text v-if="schemaTab === 2">
                             <w-json-editor
