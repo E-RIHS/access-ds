@@ -21,7 +21,7 @@ export default {
             uiSchema: undefined,
             i18nSchema: undefined,
             ajv: createAjv({ useDefaults: true }),
-            title: "New generic dataset",
+            title: 'New generic dataset',
             data: {},
             isValid: false,
         }
@@ -33,7 +33,7 @@ export default {
         getConfig() {
             console.log('GET /schema_config/' + this.$route.params.id)
             api.get('/schema_config/' + this.$route.params.id)
-                .then(response => {
+                .then((response) => {
                     this.config = response.data.id
                     this.title = "New '" + response.data.resource + "' dataset"
                     this.jsonSchema = response.data.json_schema_resolved
@@ -47,31 +47,31 @@ export default {
                         this.data = response.data.default_dataset_resolved
                     }
                 })
-                .catch(error => {
+                .catch((error) => {
                     console.warn(error)
                 })
         },
         onChange(event) {
             this.data = event.data
-            this.isValid = (event.errors.length === 0)
+            this.isValid = event.errors.length === 0
         },
         saveGenericDataset() {
-            if (this.isValid){
+            if (this.isValid) {
                 let dataset = {
-                    '$schema': this.jsonSchema.$id,
-                    '$config': this.config,
-                    ...this.data
+                    $schema: this.jsonSchema.$id,
+                    $config: this.config,
+                    ...this.data,
                 }
                 console.log('POST /generic/')
                 api.post('/generic/', dataset)
-                    .then(response => {
-                        this.$router.push("/generic")
+                    .then((response) => {
+                        this.$router.push('/generic')
                     })
-                    .catch(error => {
+                    .catch((error) => {
                         console.warn(error)
                     })
             }
-        }
+        },
     },
 }
 </script>
@@ -99,7 +99,7 @@ export default {
                 :disabled="!isValid"
                 @click="saveGenericDataset"
             >
-            Save
+                Save
             </v-btn>
         </v-container>
     </div>
