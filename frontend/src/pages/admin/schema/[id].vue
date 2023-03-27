@@ -198,20 +198,47 @@ export default {
             this.isValid = event.errors.length === 0
         },
 
-        generateUISchema() {
+        generateUiSchema() {
             this.uiSchema = Generate.uiSchema(this.jsonSchema)
         },
 
-        removeUISchema() {
+        removeUiSchema() {
             this.uiSchema = undefined
             if ('ui_schema' in this.config) {
                 this.config.ui_schema = undefined
-                console.log(this.config.ui_schema)
             }
         },
 
-        overwriteUISchema() {},
-        saveNewUISchema() {},
+        overwriteUiSchema() {},
+        saveNewUiSchema() {},
+
+        instantiateI18nSchema() {
+            this.i18nSchema = {}
+        },
+
+        removeI18nSchema() {
+            this.i18nSchema = undefined
+            if ('i18n_schema' in this.config) {
+                this.config.i18n_schema = undefined
+            }
+        },
+
+        overwriteI18nSchema() {},
+        saveNewI18nSchema() {},
+
+        instantiateDefaultDataset() {
+            this.defaultDataset = {}
+        },
+
+        removeDefaultDataset() {
+            this.defaultDataset = undefined
+            if ('default_dataset' in this.config) {
+                this.config.default_dataset = undefined
+            }
+        },
+
+        overwriteDefaultDataset() {},
+        saveNewDefaultDataset() {},
     },
 }
 </script>
@@ -246,6 +273,7 @@ export default {
                                 <v-tab>Default dataset</v-tab>
                             </v-tabs>
                         </v-card-title>
+
                         <v-card-text v-if="schemaTab === 0">
                             <w-json-editor
                                 v-model="jsonSchema"
@@ -254,6 +282,7 @@ export default {
                                 height="600px"
                             ></w-json-editor>
                         </v-card-text>
+
                         <v-card-text v-if="schemaTab === 1">
                             <v-card elevation="0">
                                 <v-card-text>
@@ -262,8 +291,8 @@ export default {
                                         v-model="uiSchema"
                                         :plus="true"
                                         :options="editorOptions"
-                                        height="600px"
-                                    ></w-json-editor>
+                                        height="600px">
+                                    </w-json-editor>
                                     <div 
                                         v-else
                                         class="ma-4 font-italic">
@@ -277,18 +306,18 @@ export default {
                                     <div v-if="uiSchema !== undefined">
                                         <v-btn
                                             class="ma-2"
-                                            @click="removeUISchema()">
+                                            @click="removeUiSchema()">
                                             Wipe
                                         </v-btn>
                                         <v-btn
                                             class="ma-2"
-                                            @click="overwriteUISchema()">
+                                            @click="overwriteUiSchema()">
                                             Save
                                         </v-btn>
                                         <v-btn
                                             color="primary"
                                             class="ma-2"
-                                            @click="saveNewUISchema()">
+                                            @click="saveNewUiSchema()">
                                             Save as new...
                                         </v-btn>
                                     </div>
@@ -296,29 +325,107 @@ export default {
                                         v-else
                                         color="primary"
                                         class="ma-2"
-                                        @click="generateUISchema()">
+                                        @click="generateUiSchema()">
                                         Generate UI Schema
                                     </v-btn>
                                 </v-card-actions>
                             </v-card>
                         </v-card-text>
+
                         <v-card-text v-if="schemaTab === 2">
-                            <w-json-editor
-                                v-if="i18nSchema !== undefined"
-                                v-model="i18nSchema"
-                                :plus="true"
-                                :options="editorOptions"
-                                height="600px"
-                            ></w-json-editor>
+                            <v-card elevation="0">
+                                <v-card-text>
+                                    <w-json-editor
+                                        v-if="i18nSchema !== undefined"
+                                        v-model="i18nSchema"
+                                        :plus="true"
+                                        :options="editorOptions"
+                                        height="600px">
+                                    </w-json-editor>
+                                    <div 
+                                        v-else
+                                        class="ma-4 font-italic">
+                                        <strong>No i18n Schema defined.</strong><br />
+                                        Select an existing i18n Schema (above), or instantiate an empty i18n Schema. 
+                                    </div>
+                                </v-card-text>
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <div v-if="i18nSchema !== undefined">
+                                        <v-btn
+                                            class="ma-2"
+                                            @click="removeI18nSchema()">
+                                            Wipe
+                                        </v-btn>
+                                        <v-btn
+                                            class="ma-2"
+                                            @click="overwriteI18nSchema()">
+                                            Save
+                                        </v-btn>
+                                        <v-btn
+                                            color="primary"
+                                            class="ma-2"
+                                            @click="saveNewI18nSchema()">
+                                            Save as new...
+                                        </v-btn>
+                                    </div>
+                                    <v-btn
+                                        v-else
+                                        color="primary"
+                                        class="ma-2"
+                                        @click="instantiateI18nSchema()">
+                                        Instantiate i18n Schema
+                                    </v-btn>
+                                </v-card-actions>
+                            </v-card>
                         </v-card-text>
+
                         <v-card-text v-if="schemaTab === 3">
-                            <w-json-editor
-                                v-if="defaultDataset !== undefined"
-                                v-model="defaultDataset"
-                                :plus="true"
-                                :options="editorOptions"
-                                height="600px"
-                            ></w-json-editor>
+                            <v-card elevation="0">
+                                <v-card-text>
+                                    <w-json-editor
+                                        v-if="defaultDataset !== undefined"
+                                        v-model="defaultDataset"
+                                        :plus="true"
+                                        :options="editorOptions"
+                                        height="600px">
+                                    </w-json-editor>
+                                    <div 
+                                        v-else
+                                        class="ma-4 font-italic">
+                                        <strong>No default dataset defined.</strong><br />
+                                        Select an existing default dataset (above), or instantiate an empty default dataset. 
+                                    </div>
+                                </v-card-text>
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <div v-if="defaultDataset !== undefined">
+                                        <v-btn
+                                            class="ma-2"
+                                            @click="removeDefaultDataset()">
+                                            Wipe
+                                        </v-btn>
+                                        <v-btn
+                                            class="ma-2"
+                                            @click="overwriteDefaultDataset()">
+                                            Save
+                                        </v-btn>
+                                        <v-btn
+                                            color="primary"
+                                            class="ma-2"
+                                            @click="saveNewDefaultDataset()">
+                                            Save as new...
+                                        </v-btn>
+                                    </div>
+                                    <v-btn
+                                        v-else
+                                        color="primary"
+                                        class="ma-2"
+                                        @click="instantiateDefaultDataset()">
+                                        Instantiate default dataset
+                                    </v-btn>
+                                </v-card-actions>
+                            </v-card>
                         </v-card-text>
                     </v-card>
                 </v-col>
@@ -353,6 +460,5 @@ export default {
                 </v-col>
             </v-row>
         </v-container>
-        <pre>{{ JSON.stringify(config, " ", 2) }}</pre>
     </div>
 </template>
