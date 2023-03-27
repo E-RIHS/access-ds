@@ -145,6 +145,18 @@ export default {
             api.get('/schema_config/' + this.id)
                 .then((response) => {
                     this.config = response.data
+                    if ('category' in this.config && this.config.category == null) {
+                        delete this.config['category']
+                    }
+                    if ('ui_schema' in this.config && this.config.ui_schema == null) {
+                        delete this.config['ui_schema']
+                    }
+                    if ('i18n_schema' in this.config && this.config.i18n_schema == null) {
+                        delete this.config['i18n_schema']
+                    }
+                    if ('default_dataset' in this.config && this.config.default_dataset == null) {
+                        delete this.config['default_dataset']
+                    }
                     this.jsonSchema = this.config['json_schema_resolved']
                         ? this.config['json_schema_resolved']
                         : {}
@@ -177,12 +189,12 @@ export default {
         },
 
         onConfigChange(event) {
-            this.instance = event.data
+            this.config = event.data
             //this.isValid = (event.errors.length === 0)
         },
 
         onInstanceChange(event) {
-            this.config = event.data
+            this.instance = event.data
             this.isValid = event.errors.length === 0
         },
     },
@@ -229,6 +241,7 @@ export default {
                         </v-card-text>
                         <v-card-text v-if="schemaTab === 1">
                             <w-json-editor
+                                v-if="uiSchema !== undefined"
                                 v-model="uiSchema"
                                 :plus="true"
                                 :options="editorOptions"
@@ -237,6 +250,7 @@ export default {
                         </v-card-text>
                         <v-card-text v-if="schemaTab === 2">
                             <w-json-editor
+                                v-if="i18nSchema !== undefined"
                                 v-model="i18nSchema"
                                 :plus="true"
                                 :options="editorOptions"
@@ -245,6 +259,7 @@ export default {
                         </v-card-text>
                         <v-card-text v-if="schemaTab === 3">
                             <w-json-editor
+                                v-if="defaultDataset !== undefined"
                                 v-model="defaultDataset"
                                 :plus="true"
                                 :options="editorOptions"
