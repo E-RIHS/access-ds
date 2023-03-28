@@ -127,7 +127,7 @@ export default {
             instance: {},
             isValid: false,
             editorOptions: {
-                mode: 'tree', // text, code, tree (default), form, preview (ro), view (ro),
+                mode: 'code', // text, code (default), tree, form, preview (ro), view (ro),
                 modes: ['tree', 'code', 'text'],
                 //name: "test"
             },
@@ -188,6 +188,92 @@ export default {
                 })
         },
 
+        putConfig() {
+            // api call - save existing config
+            console.log('PUT /schema_config/' + this.id)
+            api.put('/schema_config/' + this.id, this.config)
+                .then((response) => {
+                    console.log('PUT /schema_config/' + this.id + ' success')
+                    //this.$router.push('/admin/schema')
+                })
+                .catch((error) => {
+                    console.warn(error)
+                })
+        },
+
+        postConfig() {
+            // api call - save new config
+            console.log('POST /schema_config')
+            api.put('/schema_config', this.config)
+                .then((response) => {
+                    console.log('POST /schema_config success')
+                    this.id = response.data.id
+                    this.config = response.data
+                    // silently change url
+                    history.pushState(null, null, '/admin/schema/' + this.id)
+                    //this.$router.push('/admin/schema')
+                })
+                .catch((error) => {
+                    console.warn(error)
+                })
+        },
+
+        generateUiSchema() {
+            this.uiSchema = Generate.uiSchema(this.jsonSchema)
+        },
+
+        initSchema(type) {
+            // convert type to camelCase (javascript)
+            let camel = type.replace(/_([a-z])/g, (m, p1) => p1.toUpperCase())
+            this[camel] = {}
+        },
+
+        putSchema(type) {
+            // convert type to camelCase (javascript) and snake_case (python)
+            let camel = type.replace(/_([a-z])/g, (m, p1) => p1.toUpperCase())
+            let snake = type.replace(/([A-Z])/g, (m, p1) => '_' + p1.toLowerCase())
+            // get existing schema id from config
+            let id = this.config[snake]
+            // api call - save existing schema
+            console.log('PUT /' + snake + '/' + id)
+            api.put('/' + snake + '/' + id, this[camel])
+            .then((response) => {
+                console.log('PUT /' + snake + '/' + id + ' success')
+                this[camel] = response.data
+            })
+            .catch((error) => {
+                console.warn(error)
+            })
+        },
+
+        postSchema(type) {
+            // convert type to camelCase (javascript) and snake_case (python)
+            let camel = type.replace(/_([a-z])/g, (m, p1) => p1.toUpperCase())
+            let snake = type.replace(/([A-Z])/g, (m, p1) => '_' + p1.toLowerCase())
+            // api call - save new schema
+            console.log('POST /' + snake)
+            api.put('/' + snake, this[camel])
+                .then((response) => {
+                    console.log('POST /' + snake + ' success')
+                    this[camel] = response.data
+                    // change id in config and save
+                    this.config[snake] = response.data.id
+                })
+                .catch((error) => {
+                    console.warn(error)
+                })
+        },
+
+        removeSchema(type) {
+            // convert type to camelCase (javascript) and snake_case (python)
+            let camel = type.replace(/_([a-z])/g, (m, p1) => p1.toUpperCase())
+            let snake = type.replace(/([A-Z])/g, (m, p1) => '_' + p1.toLowerCase())
+            this[camel] = undefined
+            if (snake in this.config) {
+                this.config[snake] = undefined
+            }
+        },
+
         onConfigChange(event) {
             this.config = event.data
             //this.isValid = (event.errors.length === 0)
@@ -197,48 +283,6 @@ export default {
             this.instance = event.data
             this.isValid = event.errors.length === 0
         },
-
-        generateUiSchema() {
-            this.uiSchema = Generate.uiSchema(this.jsonSchema)
-        },
-
-        removeUiSchema() {
-            this.uiSchema = undefined
-            if ('ui_schema' in this.config) {
-                this.config.ui_schema = undefined
-            }
-        },
-
-        overwriteUiSchema() {},
-        saveNewUiSchema() {},
-
-        instantiateI18nSchema() {
-            this.i18nSchema = {}
-        },
-
-        removeI18nSchema() {
-            this.i18nSchema = undefined
-            if ('i18n_schema' in this.config) {
-                this.config.i18n_schema = undefined
-            }
-        },
-
-        overwriteI18nSchema() {},
-        saveNewI18nSchema() {},
-
-        instantiateDefaultDataset() {
-            this.defaultDataset = {}
-        },
-
-        removeDefaultDataset() {
-            this.defaultDataset = undefined
-            if ('default_dataset' in this.config) {
-                this.config.default_dataset = undefined
-            }
-        },
-
-        overwriteDefaultDataset() {},
-        saveNewDefaultDataset() {},
     },
 }
 </script>
@@ -250,15 +294,33 @@ export default {
         ></w-titlebanner>
 
         <v-container>
-            <json-forms
-                :renderers="renderers"
-                :data="config"
-                :schema="configJsonSchema"
-                :uischema="configUiSchema"
-                :i18n="undefined"
-                :ajv="ajv"
-                @change="onConfigChange"
-            ></json-forms>
+            <v-card elevation="0">
+                <v-card-text>
+                    <json-forms
+                        :renderers="renderers"
+                        :data="config"
+                        :schema="configJsonSchema"
+                        :uischema="configUiSchema"
+                        :i18n="undefined"
+                        :ajv="ajv"
+                        @change="onConfigChange">
+                    </json-forms>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        class="ma-2"
+                        @click="putConfig()">
+                        Save
+                    </v-btn>
+                    <v-btn
+                        color="primary"
+                        class="ma-2"
+                        @click="postConfig()">
+                        Save as new...
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
         </v-container>
 
         <v-container fluid>
@@ -275,12 +337,31 @@ export default {
                         </v-card-title>
 
                         <v-card-text v-if="schemaTab === 0">
-                            <w-json-editor
-                                v-model="jsonSchema"
-                                :plus="true"
-                                :options="editorOptions"
-                                height="600px"
-                            ></w-json-editor>
+                            <v-card elevation="0">
+                                <v-card-text>
+                                    <w-json-editor
+                                        v-model="jsonSchema"
+                                        :plus="true"
+                                        :options="editorOptions"
+                                        height="900px"
+                                    ></w-json-editor>
+                                </v-card-text>
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn
+                                        v-if="config.json_schema !== undefined"
+                                        class="ma-2"
+                                        @click="putSchema('json_schema')">
+                                        Save
+                                    </v-btn>
+                                    <v-btn
+                                        color="primary"
+                                        class="ma-2"
+                                        @click="postSchema('json_schema')">
+                                        Save as new...
+                                    </v-btn>
+                                </v-card-actions>
+                            </v-card>
                         </v-card-text>
 
                         <v-card-text v-if="schemaTab === 1">
@@ -291,7 +372,7 @@ export default {
                                         v-model="uiSchema"
                                         :plus="true"
                                         :options="editorOptions"
-                                        height="600px">
+                                        height="900px">
                                     </w-json-editor>
                                     <div 
                                         v-else
@@ -306,28 +387,35 @@ export default {
                                     <div v-if="uiSchema !== undefined">
                                         <v-btn
                                             class="ma-2"
-                                            @click="removeUiSchema()">
-                                            Wipe
+                                            @click="removeSchema('ui_schema')">
+                                            Remove from set
                                         </v-btn>
                                         <v-btn
+                                            v-if="config.ui_schema !== undefined"
                                             class="ma-2"
-                                            @click="overwriteUiSchema()">
+                                            @click="putSchema('ui_schema')">
                                             Save
                                         </v-btn>
                                         <v-btn
                                             color="primary"
                                             class="ma-2"
-                                            @click="saveNewUiSchema()">
+                                            @click="postSchema('ui_schema')">
                                             Save as new...
                                         </v-btn>
                                     </div>
-                                    <v-btn
-                                        v-else
-                                        color="primary"
-                                        class="ma-2"
-                                        @click="generateUiSchema()">
-                                        Generate UI Schema
-                                    </v-btn>
+                                    <div v-else>
+                                        <v-btn
+                                            class="ma-2"
+                                            @click="initSchema('ui_schema')">
+                                            Create empty UI Schema
+                                        </v-btn>
+                                        <v-btn
+                                            color="primary"
+                                            class="ma-2"
+                                            @click="generateUiSchema()">
+                                            Generate UI Schema
+                                        </v-btn>
+                                    </div>
                                 </v-card-actions>
                             </v-card>
                         </v-card-text>
@@ -340,7 +428,7 @@ export default {
                                         v-model="i18nSchema"
                                         :plus="true"
                                         :options="editorOptions"
-                                        height="600px">
+                                        height="900px">
                                     </w-json-editor>
                                     <div 
                                         v-else
@@ -354,18 +442,19 @@ export default {
                                     <div v-if="i18nSchema !== undefined">
                                         <v-btn
                                             class="ma-2"
-                                            @click="removeI18nSchema()">
-                                            Wipe
+                                            @click="removeSchema('i18n_schema')">
+                                            Remove from set
                                         </v-btn>
                                         <v-btn
+                                            v-if="config.i18n_schema !== undefined"
                                             class="ma-2"
-                                            @click="overwriteI18nSchema()">
+                                            @click="putSchema('i18n_schema')">
                                             Save
                                         </v-btn>
                                         <v-btn
                                             color="primary"
                                             class="ma-2"
-                                            @click="saveNewI18nSchema()">
+                                            @click="postSchema('i18n_schema')">
                                             Save as new...
                                         </v-btn>
                                     </div>
@@ -373,8 +462,8 @@ export default {
                                         v-else
                                         color="primary"
                                         class="ma-2"
-                                        @click="instantiateI18nSchema()">
-                                        Instantiate i18n Schema
+                                        @click="initSchema('i18n_schema')">
+                                        Create empty i18n Schema
                                     </v-btn>
                                 </v-card-actions>
                             </v-card>
@@ -388,7 +477,7 @@ export default {
                                         v-model="defaultDataset"
                                         :plus="true"
                                         :options="editorOptions"
-                                        height="600px">
+                                        height="900px">
                                     </w-json-editor>
                                     <div 
                                         v-else
@@ -402,18 +491,19 @@ export default {
                                     <div v-if="defaultDataset !== undefined">
                                         <v-btn
                                             class="ma-2"
-                                            @click="removeDefaultDataset()">
-                                            Wipe
+                                            @click="removeSchema('default_dataset')">
+                                            Remove from set
                                         </v-btn>
                                         <v-btn
+                                            v-if="config.default_dataset !== undefined"
                                             class="ma-2"
-                                            @click="overwriteDefaultDataset()">
+                                            @click="putSchema('default_dataset')">
                                             Save
                                         </v-btn>
                                         <v-btn
                                             color="primary"
                                             class="ma-2"
-                                            @click="saveNewDefaultDataset()">
+                                            @click="postSchema('default_dataset')">
                                             Save as new...
                                         </v-btn>
                                     </div>
@@ -421,8 +511,8 @@ export default {
                                         v-else
                                         color="primary"
                                         class="ma-2"
-                                        @click="instantiateDefaultDataset()">
-                                        Instantiate default dataset
+                                        @click="initSchema('default_dataset')">
+                                        Create empty default dataset
                                     </v-btn>
                                 </v-card-actions>
                             </v-card>
@@ -453,7 +543,7 @@ export default {
                                 v-model="instance"
                                 :plus="true"
                                 :options="editorOptions"
-                                height="600px"
+                                height="900px"
                             ></w-json-editor>
                         </v-card-text>
                     </v-card>
