@@ -116,6 +116,8 @@ export default {
             configJsonSchema: configJsonSchema,
             configUiSchema: configUiSchema,
             jsonSchema: {},
+            jsonSchemaDraft: null,
+            jsonSchemaId: null,
             uiSchema: {},
             i18nSchema: {},
             defaultDataset: {},
@@ -145,47 +147,51 @@ export default {
             api.get('/schema_config/' + this.id)
                 .then((response) => {
                     this.config = response.data
-                    if ('category' in this.config && this.config.category == null) {
-                        delete this.config['category']
-                    }
-                    if ('ui_schema' in this.config && this.config.ui_schema == null) {
-                        delete this.config['ui_schema']
-                    }
-                    if ('i18n_schema' in this.config && this.config.i18n_schema == null) {
-                        delete this.config['i18n_schema']
-                    }
-                    if ('default_dataset' in this.config && this.config.default_dataset == null) {
-                        delete this.config['default_dataset']
-                    }
-                    this.jsonSchema = this.config['json_schema_resolved']
-                        ? this.config['json_schema_resolved']
-                        : {}
-                    delete this.config['json_schema_resolved']
-                    this.uiSchema = this.config['ui_schema_resolved']
-                        ? this.config['ui_schema_resolved']
-                        : undefined
-                    delete this.config['ui_schema_resolved']
-                    this.i18nSchema = this.config['i18n_schema_resolved']
-                        ? this.config['i18n_schema_resolved']
-                        : undefined
-                    delete this.config['i18n_schema_resolved']
-                    this.defaultDataset = this.config[
-                        'default_dataset_resolved'
-                    ]
-                        ? this.config['default_dataset_resolved']
-                        : undefined
-                    this.instance = this.config['default_dataset_resolved']
-                        ? JSON.parse(
-                              JSON.stringify(
-                                  this.config['default_dataset_resolved']
-                              )
-                          )
-                        : {}
-                    delete this.config['default_dataset_resolved']
+                    this.applyConfig()
                 })
                 .catch((error) => {
                     console.warn(error)
                 })
+        },
+
+        applyConfig() {
+            if ('category' in this.config && this.config.category == null)
+                delete this.config['category']
+            if ('ui_schema' in this.config && this.config.ui_schema == null)
+                delete this.config['ui_schema']
+            if ('i18n_schema' in this.config && this.config.i18n_schema == null)
+                delete this.config['i18n_schema']
+            if ('default_dataset' in this.config && this.config.default_dataset == null)
+                delete this.config['default_dataset']
+
+            if (this.config['json_schema_resolved']) {
+                this.jsonSchema = this.config['json_schema_resolved']
+                this.jsonSchemaDraft = this.jsonSchema['$schema']
+                this.jsonSchemaId = this.jsonSchema['$id']
+                delete this.jsonSchema['$schema']
+                delete this.jsonSchema['$id']
+            } else {
+                this.jsonSchema = {}
+                this.jsonSchemaDraft = null
+                this.jsonSchemaId = null
+            }
+            this.uiSchema = this.config['ui_schema_resolved']
+                ? this.config['ui_schema_resolved']
+                : undefined
+            this.i18nSchema = this.config['i18n_schema_resolved']
+                ? this.config['i18n_schema_resolved']
+                : undefined
+            this.defaultDataset = this.config['default_dataset_resolved']
+                ? this.config['default_dataset_resolved']
+                : undefined
+            this.instance = this.config['default_dataset_resolved']
+                ? JSON.parse(JSON.stringify(this.config['default_dataset_resolved']))
+                : {}
+            
+            delete this.config['json_schema_resolved']
+            delete this.config['ui_schema_resolved']
+            delete this.config['i18n_schema_resolved']
+            delete this.config['default_dataset_resolved']
         },
 
         putConfig() {
@@ -204,13 +210,14 @@ export default {
         postConfig() {
             // api call - save new config
             console.log('POST /schema_config')
-            api.put('/schema_config', this.config)
+            api.post('/schema_config', this.config)
                 .then((response) => {
                     console.log('POST /schema_config success')
                     this.id = response.data.id
                     this.config = response.data
+                    this.applyConfig()
                     // silently change url
-                    history.pushState(null, null, '/admin/schema/' + this.id)
+                    history.pushState(null, null, '/admin/schema/' + response.data.id)
                     //this.$router.push('/admin/schema')
                 })
                 .catch((error) => {
@@ -252,7 +259,7 @@ export default {
             let snake = type.replace(/([A-Z])/g, (m, p1) => '_' + p1.toLowerCase())
             // api call - save new schema
             console.log('POST /' + snake)
-            api.put('/' + snake, this[camel])
+            api.post('/' + snake, this[camel])
                 .then((response) => {
                     console.log('POST /' + snake + ' success')
                     this[camel] = response.data
@@ -339,6 +346,16 @@ export default {
                         <v-card-text v-if="schemaTab === 0">
                             <v-card elevation="0">
                                 <v-card-text>
+                                    <v-select
+                                        v-model="jsonSchemaDraft"
+                                        :items="['http://json-schema.org/draft-07/schema#']"
+                                        readonly
+                                        label="$schema">
+                                    </v-select>
+                                    <v-text-field
+                                        v-model="jsonSchemaId"
+                                        label="$id">
+                                    </v-text-field>
                                     <w-json-editor
                                         v-model="jsonSchema"
                                         :plus="true"
