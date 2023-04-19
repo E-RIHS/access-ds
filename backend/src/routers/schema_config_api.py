@@ -25,7 +25,7 @@ async def resolveSchema(collection: AsyncIOMotorCollection, crud_instance, schem
         response = await crud_instance.get(
             collection=collection,
             id=schema_id)
-        return response["data"]
+        return response
     else:
         return None
 

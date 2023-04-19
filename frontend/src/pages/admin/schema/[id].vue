@@ -116,11 +116,15 @@ export default {
             configJsonSchema: configJsonSchema,
             configUiSchema: configUiSchema,
             jsonSchema: {},
+            jsonSchemaName: null,
             jsonSchemaDraft: null,
             jsonSchemaId: null,
             uiSchema: {},
+            uiSchemaName: null,
             i18nSchema: {},
+            i18nSchemaName: null,
             defaultDataset: {},
+            defaultDatasetName: null,
             schemaTab: 0,
             instanceTab: 0,
             dataEntry: true,
@@ -156,42 +160,59 @@ export default {
 
         applyConfig() {
             if ('category' in this.config && this.config.category == null)
-                delete this.config['category']
+                delete this.config.category
             if ('ui_schema' in this.config && this.config.ui_schema == null)
-                delete this.config['ui_schema']
+                delete this.config.ui_schema
             if ('i18n_schema' in this.config && this.config.i18n_schema == null)
-                delete this.config['i18n_schema']
+                delete this.config.i18n_schema
             if ('default_dataset' in this.config && this.config.default_dataset == null)
-                delete this.config['default_dataset']
+                delete this.config.default_dataset
 
-            if (this.config['json_schema_resolved']) {
-                this.jsonSchema = this.config['json_schema_resolved']
-                this.jsonSchemaDraft = this.jsonSchema['$schema']
-                this.jsonSchemaId = this.jsonSchema['$id']
-                delete this.jsonSchema['$schema']
-                delete this.jsonSchema['$id']
+            if (this.config.json_schema_resolved) {
+                this.jsonSchema = this.config.json_schema_resolved.data
+                this.jsonSchemaName = this.config.json_schema_resolved.name
+                this.jsonSchemaDraft = this.jsonSchema.$schema
+                this.jsonSchemaId = this.jsonSchema.$id
+                delete this.jsonSchema.$schema
+                delete this.jsonSchema.$id
             } else {
                 this.jsonSchema = {}
+                this.jsonSchemaName = null
                 this.jsonSchemaDraft = null
                 this.jsonSchemaId = null
             }
-            this.uiSchema = this.config['ui_schema_resolved']
-                ? this.config['ui_schema_resolved']
-                : undefined
-            this.i18nSchema = this.config['i18n_schema_resolved']
-                ? this.config['i18n_schema_resolved']
-                : undefined
-            this.defaultDataset = this.config['default_dataset_resolved']
-                ? this.config['default_dataset_resolved']
-                : undefined
+            delete this.config['json_schema_resolved']
+
+            if (this.config.ui_schema_resolved) {
+                this.uiSchema = this.config.ui_schema_resolved.data
+                this.uiSchemaName = this.config.ui_schema_resolved.name
+            } else {
+                this.uiSchema = undefined
+                this.uiSchemaName = null
+            }
+            delete this.config['ui_schema_resolved']
+
+            if (this.config.i18n_schema_resolved) {
+                this.i18nSchema = this.config.i18n_schema_resolved.data
+                this.i18nSchemaName = this.config.i18n_schema_resolved.name
+            } else {
+                this.i18nSchema = undefined
+                this.i18nSchemaName = null
+            }
+            delete this.config['i18n_schema_resolved']
+
+            if (this.config.default_dataset_resolved) {
+                this.defaultDataset = this.config.default_dataset_resolved.data
+                this.defaultDatasetName = this.config.default_dataset_resolved.name
+            } else {
+                this.defaultDataset = undefined
+                this.defaultDatasetName = null
+            }
+            delete this.config['default_dataset_resolved']
+
             this.instance = this.config['default_dataset_resolved']
                 ? JSON.parse(JSON.stringify(this.config['default_dataset_resolved']))
                 : {}
-            
-            delete this.config['json_schema_resolved']
-            delete this.config['ui_schema_resolved']
-            delete this.config['i18n_schema_resolved']
-            delete this.config['default_dataset_resolved']
         },
 
         putConfig() {
@@ -235,18 +256,46 @@ export default {
             this[camel] = {}
         },
 
+        buildSchema(camel) {
+            // build schema object
+            if (this[camel + 'Name'] === null || this[camel] === undefined) {
+                console.warn('Invalid ' + snake)
+                return null
+            }
+            let schema = {
+                name: this[camel + 'Name'],
+                data: this[camel],
+            }
+            if (camel === 'jsonSchema') {
+                if (this.jsonSchemaDraft === null || this.jsonSchemaId === null) {
+                    console.warn('Invalid jsonSchema')
+                    return NULL
+                }
+                schema.data.$schema = this.jsonSchemaDraft
+                schema.data.$id = this.jsonSchemaId
+            }
+            return schema
+        },
+
         putSchema(type) {
             // convert type to camelCase (javascript) and snake_case (python)
             let camel = type.replace(/_([a-z])/g, (m, p1) => p1.toUpperCase())
             let snake = type.replace(/([A-Z])/g, (m, p1) => '_' + p1.toLowerCase())
+            
             // get existing schema id from config
             let id = this.config[snake]
+
+            // build schema object
+            let schema = this.buildSchema(camel)
+            if (schema === null)
+                return null
+
             // api call - save existing schema
             console.log('PUT /' + snake + '/' + id)
-            api.put('/' + snake + '/' + id, this[camel])
+            api.put('/' + snake + '/' + id, schema)
             .then((response) => {
                 console.log('PUT /' + snake + '/' + id + ' success')
-                this[camel] = response.data
+                this[camel] = response.data.data
             })
             .catch((error) => {
                 console.warn(error)
@@ -257,12 +306,18 @@ export default {
             // convert type to camelCase (javascript) and snake_case (python)
             let camel = type.replace(/_([a-z])/g, (m, p1) => p1.toUpperCase())
             let snake = type.replace(/([A-Z])/g, (m, p1) => '_' + p1.toLowerCase())
+            
+            // build schema object
+            let schema = this.buildSchema(camel)
+            if (schema === null)
+                return null
+            
             // api call - save new schema
             console.log('POST /' + snake)
-            api.post('/' + snake, this[camel])
+            api.post('/' + snake, schema)
                 .then((response) => {
                     console.log('POST /' + snake + ' success')
-                    this[camel] = response.data
+                    this[camel] = response.data.data
                     // change id in config and save
                     this.config[snake] = response.data.id
                 })
@@ -356,6 +411,10 @@ export default {
                                         v-model="jsonSchemaId"
                                         label="$id">
                                     </v-text-field>
+                                    <v-text-field
+                                        v-model="jsonSchemaName"
+                                        label="JSON Schema name">
+                                    </v-text-field>
                                     <w-json-editor
                                         v-model="jsonSchema"
                                         :plus="true"
@@ -384,6 +443,10 @@ export default {
                         <v-card-text v-if="schemaTab === 1">
                             <v-card elevation="0">
                                 <v-card-text>
+                                    <v-text-field
+                                        v-model="uiSchemaName"
+                                        label="UI Schema name">
+                                    </v-text-field>
                                     <w-json-editor
                                         v-if="uiSchema !== undefined"
                                         v-model="uiSchema"
@@ -440,6 +503,10 @@ export default {
                         <v-card-text v-if="schemaTab === 2">
                             <v-card elevation="0">
                                 <v-card-text>
+                                    <v-text-field
+                                        v-model="i18nSchemaName"
+                                        label="I18n Schema name">
+                                    </v-text-field>
                                     <w-json-editor
                                         v-if="i18nSchema !== undefined"
                                         v-model="i18nSchema"
@@ -489,6 +556,10 @@ export default {
                         <v-card-text v-if="schemaTab === 3">
                             <v-card elevation="0">
                                 <v-card-text>
+                                    <v-text-field
+                                        v-model="defaultDatasetName"
+                                        label="Default dataset name">
+                                    </v-text-field>
                                     <w-json-editor
                                         v-if="defaultDataset !== undefined"
                                         v-model="defaultDataset"
