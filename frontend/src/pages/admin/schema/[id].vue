@@ -2,7 +2,6 @@
 import { JsonForms } from '@jsonforms/vue2'
 import { vuetifyRenderers, additionalRenderers } from '@jsonforms/vue2-vuetify'
 import customRenderers from '@/renderers/index.js'
-//import stringControlWithExamplesRenderer from '@/renderers/StringControlWithExamplesRenderer.vue'
 import { createAjv, Generate } from '@jsonforms/core'
 
 import WTitlebanner from '@/components/WTitlebanner.vue'
