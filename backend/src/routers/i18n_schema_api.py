@@ -45,6 +45,23 @@ async def get_i18n_schema_by_id(
     return response
 
 
+@router.get("/{id}/name", response_model=models.I18nSchemaShort)
+async def get_i18n_schema_name(
+        id: str = Path(None, description="The id of the schema")):
+    """
+    Return the name of a i18n Schema by its id.
+    """
+    try:
+        response = await crud.i18n_schema.get(
+            collection=db.i18n_schemas, 
+            id=id)
+    except crud.NoResultsError:
+        raise HTTPException(status_code=404, detail="NoResults")
+    except BaseException as err:
+        raise HTTPException(status_code=400, detail=str(err))
+    return response
+
+
 @router.post("/", response_model=models.I18nSchema)
 async def create_i18n_schema(
         data: models.I18nSchemaUpdate):

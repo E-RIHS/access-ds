@@ -2,7 +2,7 @@ from pathlib import Path
 
 import requests
 import asyncio
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase, AsyncIOMotorCollection
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 from bson import ObjectId
 
 import core

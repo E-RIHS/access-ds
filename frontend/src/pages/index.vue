@@ -11,7 +11,7 @@ export default {
 
 <template>
     <div>
-        <w-titlebanner title="Access-DC"></w-titlebanner>
+        <w-titlebanner title="Access Documentation System"></w-titlebanner>
 
         <v-container>
             <v-alert outlined text type="info">

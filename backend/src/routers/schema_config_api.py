@@ -1,5 +1,8 @@
-from fastapi import APIRouter, HTTPException, Path
-from motor.motor_asyncio import AsyncIOMotorClient
+from typing import Optional, List
+import json
+
+from fastapi import APIRouter, HTTPException, Path, Query
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 
 import core
 import models
@@ -17,14 +20,44 @@ client = AsyncIOMotorClient(core.settings.mongo_conn_str)
 db = client[core.settings.mongo_db]
 
 
+async def resolveSchema(collection: AsyncIOMotorCollection, crud_instance, schema_id: str):
+    if schema_id is not None:
+        response = await crud_instance.get(
+            collection=collection,
+            id=schema_id)
+        return response
+    else:
+        return None
+
+
 @router.get("/", response_model=models.SchemaConfigList)
-async def get_all_schema_configs():
+async def search_schema_configs(
+        skip: Optional[int] = Query(0, description="Skip the x first results"),
+        limit: Optional[int] = Query(10, description="Return x results"), 
+        find: Optional[str] = Query(None, description="Mongodb-style find query in JSON"),
+        sort_by: Optional[List[str]] = Query(["name"], description="Sorting options (array of strings)"),
+        sort_desc: Optional[List[bool]] = Query([], description="Sort descending (arry of booleans)")):
     """
-    Return all JSON Schema configuration sets.
+    Search JSON Schema configuration sets.
     """
-    response = await crud.schema_config.search(
-        collection=db.schema_configs,
-        limit=0)
+
+    if find is not None:
+        find = json.loads(find)
+    else:
+        find = {}
+
+    if len(sort_desc) > 0 and len(sort_desc) != len(sort_by):
+        raise HTTPException(status_code=400, detail="ParameterError")
+    try: 
+        response = await crud.schema_config.search(
+            collection=db.schema_configs,
+            find=find,
+            skip=skip,
+            limit=limit,
+            sort_by=sort_by,
+            sort_desc=sort_desc)
+    except BaseException as err:
+        raise HTTPException(status_code=400, detail=str(err))
     return response
 
 
@@ -38,29 +71,11 @@ async def get_resolved_schema_config_by_id(
         response = await crud.schema_config.get(
             collection=db.schema_configs, 
             id=id)
-        # resolve json_schema
-        json_schema = await crud.json_schema.get(
-            collection=db.json_schemas,
-            id=response["json_schema"])
-        response["json_schema_resolved"] = json_schema["data"]
-        # resolve ui_schema
-        if response["ui_schema"] is not None:
-            ui_schema = await crud.ui_schema.get(
-                collection=db.ui_schemas,
-                id=response["ui_schema"])
-            response["ui_schema_resolved"] = ui_schema["data"]
-        # resolve i18n_schema
-        if response["ui_schema"] is not None:
-            i18n_schema = await crud.i18n_schema.get(
-                collection=db.i18n_schemas,
-                id=response["i18n_schema"])
-            response["i18n_schema_resolved"] = i18n_schema["data"]
-        # resolve default_dataset
-        if response["default_dataset"] is not None:
-            default_dataset = await crud.default_dataset.get(
-                collection=db.default_dataset,
-                id=response["default_dataset"])
-            response["default_dataset_resolved"] = default_dataset["data"]
+        # resolve schemas
+        response["json_schema_resolved"] = await resolveSchema(db.json_schemas, crud.json_schema, response["json_schema"])
+        response["ui_schema_resolved"] = await resolveSchema(db.ui_schemas, crud.ui_schema, response["ui_schema"])
+        response["i18n_schema_resolved"] = await resolveSchema(db.i18n_schemas, crud.i18n_schema, response["i18n_schema"])
+        response["default_dataset_resolved"] = await resolveSchema(db.default_dataset, crud.default_dataset, response["default_dataset"])
     except crud.NoResultsError:
         raise HTTPException(status_code=404, detail="NoResults")
     except BaseException as err:
@@ -79,6 +94,11 @@ async def create_schema_config(
         response = await crud.schema_config.create(
             collection=db.schema_configs,
             data=data)
+        # resolve schemas
+        response["json_schema_resolved"] = await resolveSchema(db.json_schemas, crud.json_schema, response["json_schema"])
+        response["ui_schema_resolved"] = await resolveSchema(db.ui_schemas, crud.ui_schema, response["ui_schema"])
+        response["i18n_schema_resolved"] = await resolveSchema(db.i18n_schemas, crud.i18n_schema, response["i18n_schema"])
+        response["default_dataset_resolved"] = await resolveSchema(db.default_dataset, crud.default_dataset, response["default_dataset"])
     except crud.DuplicateKeyError:
         raise HTTPException(status_code=422, detail="DuplicateKey")
     except crud.NotCreatedError:
@@ -97,10 +117,15 @@ async def replace_schema_config(
     """
     try:
         # update the schema
-        updated = await crud.schema_config.replace(
+        response = await crud.schema_config.replace(
             collection=db.schema_configs, 
             id=id,
             data=data)
+        # resolve schemas
+        response["json_schema_resolved"] = await resolveSchema(db.json_schemas, crud.json_schema, response["json_schema"])
+        response["ui_schema_resolved"] = await resolveSchema(db.ui_schemas, crud.ui_schema, response["ui_schema"])
+        response["i18n_schema_resolved"] = await resolveSchema(db.i18n_schemas, crud.i18n_schema, response["i18n_schema"])
+        response["default_dataset_resolved"] = await resolveSchema(db.default_dataset, crud.default_dataset, response["default_dataset"])
     except crud.NoResultsError:
         raise HTTPException(status_code=404, detail="NoResults")
     except crud.DuplicateKeyError:
@@ -109,7 +134,7 @@ async def replace_schema_config(
         raise HTTPException(status_code=400, detail="NotUpdated")
     except BaseException as err:
         raise HTTPException(status_code=400, detail=str(err))
-    return updated
+    return response
 
 
 @router.delete("/{id}", response_model=models.SchemaConfig)
