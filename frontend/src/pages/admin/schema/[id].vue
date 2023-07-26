@@ -1,13 +1,14 @@
 <script>
 import { JsonForms } from '@jsonforms/vue2'
 import { vuetifyRenderers, additionalRenderers } from '@jsonforms/vue2-vuetify'
+import customRenderers from '@/renderers/index.js'
 import { createAjv, Generate } from '@jsonforms/core'
 
 import WTitlebanner from '@/components/WTitlebanner.vue'
 import WJsonEditor from '@/components/WJsonEditor.vue'
 import api from '@/utils/request'
 
-const renderers = [...vuetifyRenderers, ...additionalRenderers]
+const renderers = [...customRenderers, ...vuetifyRenderers, ...additionalRenderers, ]
 
 const configJsonSchema = {
     title: 'SchemaConfig',
