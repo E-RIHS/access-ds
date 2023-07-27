@@ -10,10 +10,10 @@ class CRUDTerm(CRUDBase):
             self, 
             collection: AsyncIOMotorCollection, 
             *,
-            parent_term: str = "_root") -> dict:
+            parent_id: str = "_root") -> dict:
         result = await self.search(
             collection=collection,
-            find={"instance_of": parent_term}, 
+            find={"instance_of": parent_id}, 
             limit=0)
         if len(result.data) == 0:
             raise NoResultsError
@@ -24,11 +24,11 @@ class CRUDTerm(CRUDBase):
             self, 
             collection: AsyncIOMotorCollection, 
             *,
-            parent_term: str = "_root",
+            parent_id: str = "_root",
             lang: str = "en") -> dict:
         result = await self.get_children(
             collection=collection,
-            parent_term=parent_term)
+            parent_id=parent_id)
         for key, term in result:
             localised_label: str = ""
             localised_description: Optional[str] = None

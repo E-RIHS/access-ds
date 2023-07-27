@@ -6,8 +6,8 @@ from models.common import IdBaseModel
 
 
 class TermUpdate(BaseModel):
-    name: str = Field(...)
-    instance_of: str = Field("_root")
+    name: str = Field(..., min_length=1)
+    instance_of: str = Field(..., min_length=1)
     label: dict = Field(...)
     description: Optional[dict] = Field(None)
     same_as: Optional[str] = Field(None)
@@ -25,8 +25,8 @@ class TermLocalised(IdBaseModel):
 
 
 class TermChildren(BaseModel):
-    terms: List[Term] = Field(...)
+    children: List[Term] = Field(...)
 
 
 class TermChildrenLocalised(BaseModel):
-    terms: List[TermLocalised] = Field(...)
+    children: List[TermLocalised] = Field(...)

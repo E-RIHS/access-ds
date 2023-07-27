@@ -9,8 +9,8 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:8001"
     schema_file_list_url: str = "https://api.github.com/repos/E-RIHS/schema/git/trees/main?recursive=1"
     schema_download_url: str = "https://raw.githubusercontent.com/E-RIHS/schema/main/"
-    vocab_file_list_url: str = "https://api.github.com/repos/E-RIHS/controlled-lists/contents/json"
-    vocab_download_url: str = "https://raw.githubusercontent.com/E-RIHS/controlled-lists/main/json/"
+    terms_file_list_url: str = "https://api.github.com/repos/E-RIHS/controlled-lists/contents/json"
+    root_term_object_id: str = "_root_term__"
 
     class Config:
         env_file = ".env"
