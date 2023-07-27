@@ -44,8 +44,9 @@ class CRUDTerm(CRUDBase):
                 localised_description = term["description"]["en"]
             result[key]['label'] = localised_label
             result[key]['description'] = localised_description
-        #TODO: sort on label
-        return result
+        # sort on label
+        return sorted(result, key=lambda d: d['label']) 
+
     
 term = CRUDTerm()
 
