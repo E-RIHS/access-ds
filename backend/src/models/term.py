@@ -20,12 +20,8 @@ class Term(TermUpdate, IdBaseModel):
 
 class TermLocalised(IdBaseModel):
     name: str = Field(...)
-    instance_of: str = Field("_root")
-    lang: str = Field(...)
     label: str = Field(...)
     description: Optional[str] = Field(None)
-    same_as: Optional[str] = Field(None)
-    source: Optional[str] = Field(None)
 
 
 class TermChildren(BaseModel):

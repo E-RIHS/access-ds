@@ -7,7 +7,6 @@ from bson import ObjectId
 
 import core
 from models.term import TermUpdate
-#from models.schema_config import SchemaConfigUpdate
 
 
 def get_list_from_github():
