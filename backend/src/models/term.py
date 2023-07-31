@@ -2,7 +2,7 @@ from typing import Optional, List
 
 from pydantic import BaseModel, Field
 
-from models.common import IdBaseModel
+from models.common import IdBaseModel, QueryParameters
 
 
 class TermUpdate(BaseModel):
@@ -15,18 +15,28 @@ class TermUpdate(BaseModel):
 
 
 class Term(TermUpdate, IdBaseModel):
-    pass
+    instance_of: Optional[str] = Field(None)
+
+
+class TermShort(IdBaseModel):
+    name: str = Field(..., min_length=1)
+    label: dict = Field(...)
 
 
 class TermLocalised(IdBaseModel):
     name: str = Field(...)
     label: str = Field(...)
-    description: Optional[str] = Field(None)
+    #description: Optional[str] = Field(None)
 
 
 class TermChildren(BaseModel):
-    children: List[Term] = Field(...)
+    data: List[TermShort] = Field(...)
 
 
 class TermChildrenLocalised(BaseModel):
-    children: List[TermLocalised] = Field(...)
+    data: List[TermLocalised] = Field(...)
+
+
+class TermList(BaseModel):
+    query_parameters: QueryParameters = Field(...)
+    data: List[TermShort] = Field([])

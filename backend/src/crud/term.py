@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from motor.motor_asyncio import AsyncIOMotorCollection
 
@@ -15,9 +15,9 @@ class CRUDTerm(CRUDBase):
             collection=collection,
             find={"instance_of": parent_id}, 
             limit=0)
-        if len(result.data) == 0:
+        if len(result['data']) == 0:
             raise NoResultsError
-        return result.data
+        return result['data']
     
 
     async def get_children_localised(
@@ -29,7 +29,7 @@ class CRUDTerm(CRUDBase):
         result = await self.get_children(
             collection=collection,
             parent_id=parent_id)
-        for key, term in result:
+        for term in result:
             localised_label: str = ""
             localised_description: Optional[str] = None
             if lang in term["label"]:
@@ -42,8 +42,8 @@ class CRUDTerm(CRUDBase):
                 localised_description = term["description"][lang]
             elif "en" in term["description"]:
                 localised_description = term["description"]["en"]
-            result[key]['label'] = localised_label
-            result[key]['description'] = localised_description
+            term['label'] = localised_label
+            term['description'] = localised_description
         # sort on label
         return sorted(result, key=lambda d: d['label']) 
 

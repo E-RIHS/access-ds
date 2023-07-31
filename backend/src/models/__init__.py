@@ -4,4 +4,4 @@ from .i18n_schema import I18nSchema, I18nSchemaShort, I18nSchemaUpdate, I18nSche
 from .default_dataset import DefaultDataset, DefaultDatasetShort, DefaultDatasetUpdate, DefaultDatasetList
 
 from .schema_config import SchemaConfig, SchemaConfigShort, SchemaConfigUpdate, SchemaConfigList
-from .term import Term, TermLocalised, TermUpdate, TermChildren, TermChildrenLocalised
+from .term import Term, TermLocalised, TermUpdate, TermChildren, TermChildrenLocalised, TermList

@@ -10,7 +10,6 @@ class Settings(BaseSettings):
     schema_file_list_url: str = "https://api.github.com/repos/E-RIHS/schema/git/trees/main?recursive=1"
     schema_download_url: str = "https://raw.githubusercontent.com/E-RIHS/schema/main/"
     terms_file_list_url: str = "https://api.github.com/repos/E-RIHS/controlled-lists/contents/json"
-    root_term_object_id: str = "_root_term__"
 
     class Config:
         env_file = ".env"

@@ -10,7 +10,6 @@ import core
 from models.term import Term, TermUpdate
 
 
-#root_oid = ObjectId(bytes(core.settings.root_term_object_id, 'utf-8'))
 root_term = {
     'name': '_root',
     'instance_of': None,
