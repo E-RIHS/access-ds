@@ -83,6 +83,7 @@ import { DisabledIconFocus } from '@jsonforms/vue2-vuetify'
 import isArray from 'lodash/isArray'
 import every from 'lodash/every'
 import isString from 'lodash/isString'
+import axios from 'axios'
 
 const controlRenderer = defineComponent({
     name: 'string-control-with-examples-renderer',
@@ -107,27 +108,37 @@ const controlRenderer = defineComponent({
     },
     computed: {
         suggestions() {
-            const suggestions = this.control.uischema.options?.suggestion
-            const examples = this.control.schema.examples
-
-            if (
-                suggestions === undefined ||
-                !isArray(suggestions) ||
-                !every(suggestions, isString)
-            ) {
-                if (
-                    examples === undefined ||
-                    !isArray(examples) ||
-                    !every(examples, isString)
-                ) {
-                    // check for incorrect data
-                    return undefined
-                } else {
-                    return examples
-                }
-            } else {
-                return suggestions
+            const uiSuggestions = this.control.uischema.options?.suggestion
+            if ( uiSuggestions !== undefined && isArray(uiSuggestions) && every(uiSuggestions, isString)) {
+                return uiSuggestions
             }
+
+            const uiExamplesApi = this.control.uischema.options?.examples-api
+            if ( uiExamplesApi !== undefined ) {
+                axios.get(uiExamplesApi)
+                    .then((response) => {return response.data})
+                    .catch((error) => {console.log(error)})
+            }
+            
+            const uiExamples = this.control.uischema.options?.examples
+            if ( uiExamples !== undefined && isArray(uiExamples) && every(uiExamples, isString)) {
+                return uiExamples
+            }
+
+            const jsonExamplesApi = this.control.schema.examples-api
+            if ( jsonExamplesApi !== undefined ) {
+                axios.get(jsonExamplesApi)
+                    .then((response) => {return response.data})
+                    .catch((error) => {console.log(error)})
+            }
+            
+            const jsonExamples = this.control.schema.examples
+            if ( jsonExamples !== undefined && isArray(jsonExamples) && every(jsonExamples, isString)) {
+                return jsonExamples
+            }
+
+            // no suggestions/examples or incorrect data
+            return undefined
         },
     },
 })
