@@ -1,7 +1,7 @@
-import { entry as stringControlWithExamplesRenderer} from './StringControlWithExamplesRenderer.vue'
+import { entry as extendedStringControlRenderer} from './ExtendedStringControlRenderer.vue'
 
 const customRenderers = [
-    stringControlWithExamplesRenderer,
+    extendedStringControlRenderer,
 ]
 
 export default customRenderers;
