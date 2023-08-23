@@ -79,10 +79,8 @@
 import { rankWith, isStringControl } from '@jsonforms/core'
 import { defineComponent } from 'vue'
 import { rendererProps, useJsonFormsControl } from '@jsonforms/vue2'
-import { ControlWrapper } from '@jsonforms/vue2-vuetify'
-import { useVuetifyControl } from '@jsonforms/vue2-vuetify'
+import { ControlWrapper, useVuetifyControl, DisabledIconFocus } from '@jsonforms/vue2-vuetify'
 import { VHover, VTextField, VCombobox } from 'vuetify/lib'
-import { DisabledIconFocus } from '@jsonforms/vue2-vuetify'
 import isArray from 'lodash/isArray'
 import every from 'lodash/every'
 import isString from 'lodash/isString'
@@ -172,6 +170,10 @@ const controlRenderer = defineComponent({
     mounted() {
         this.getItems()
     },
+    // note: disabled because of too many invocations
+    //updated() {
+    //    this.getItems()
+    //},
 })
 
 export default controlRenderer
