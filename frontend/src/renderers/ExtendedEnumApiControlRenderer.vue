@@ -112,12 +112,12 @@ const hasOption =
 export const entry = {
     renderer: controlRenderer,
     tester: rankWith(4, and(
-        isStringControl,
-        or(
-            schemaMatches((schema) => Object.prototype.hasOwnProperty.call(schema, 'enum_api')),
-            hasOption('enum_api')
+            isStringControl,
+            or(
+                schemaMatches((schema) => Object.prototype.hasOwnProperty.call(schema, 'enum_api')),
+                hasOption('enum_api')
+            )
         )
-    )
     ),
 }
 
