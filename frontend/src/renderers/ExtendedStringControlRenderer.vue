@@ -7,7 +7,7 @@
     >
         <v-hover v-slot="{ hover }">
             <v-combobox
-                v-if="suggestions !== undefined"
+                v-if="items !== undefined"
                 v-disabled-icon-focus
                 :id="control.id + '-input'"
                 :class="styles.control.input"
@@ -30,8 +30,11 @@
                         : undefined
                 "
                 :clearable="hover"
-                :value="control.data"
-                :items="suggestions"
+                :value="control.data"   
+                :items="items"
+                :item-text="itemTitle"      
+                :item-value="itemValue"
+                :return-object="false"
                 hide-no-data
                 v-bind="vuetifyProps('v-combobox')"
                 @input="onChange"
@@ -76,16 +79,15 @@
 import { rankWith, isStringControl } from '@jsonforms/core'
 import { defineComponent } from 'vue'
 import { rendererProps, useJsonFormsControl } from '@jsonforms/vue2'
-import { ControlWrapper } from '@jsonforms/vue2-vuetify'
-import { useVuetifyControl } from '@jsonforms/vue2-vuetify'
+import { ControlWrapper, useVuetifyControl, DisabledIconFocus } from '@jsonforms/vue2-vuetify'
 import { VHover, VTextField, VCombobox } from 'vuetify/lib'
-import { DisabledIconFocus } from '@jsonforms/vue2-vuetify'
 import isArray from 'lodash/isArray'
 import every from 'lodash/every'
 import isString from 'lodash/isString'
+import axios from 'axios'
 
 const controlRenderer = defineComponent({
-    name: 'string-control-with-examples-renderer',
+    name: 'extended-string-control-renderer',
     components: {
         ControlWrapper,
         VHover,
@@ -105,31 +107,73 @@ const controlRenderer = defineComponent({
             300
         )
     },
-    computed: {
-        suggestions() {
-            const suggestions = this.control.uischema.options?.suggestion
-            const examples = this.control.schema.examples
-
-            if (
-                suggestions === undefined ||
-                !isArray(suggestions) ||
-                !every(suggestions, isString)
-            ) {
-                if (
-                    examples === undefined ||
-                    !isArray(examples) ||
-                    !every(examples, isString)
-                ) {
-                    // check for incorrect data
-                    return undefined
-                } else {
-                    return examples
-                }
-            } else {
-                return suggestions
+    data() {
+        return {
+            items: undefined,
+            itemTitle: 'label',     // note: vuetify2: item-text, vuetify3: item-title
+            itemValue: 'label',     // note: not possible to store id's and display labels in combobox (see https://github.com/vuetifyjs/vuetify/issues/5479)
+        }
+    },
+    methods: {
+        getItems() {
+            const uiSuggestions = this.control.uischema.options?.suggestion
+            if ( uiSuggestions !== undefined && isArray(uiSuggestions) && every(uiSuggestions, isString)) {
+                this.items = uiSuggestions
+                return
             }
+
+            const uiExamplesApi = this.control.uischema.options?.examples_api
+            if ( uiExamplesApi !== undefined ) {
+                axios.get(uiExamplesApi)
+                    .then((response) => {
+                        if (this.control.uischema.options?.examples_api_id !== undefined)
+                            this.itemValue = this.control.uischema.options?.examples_api_id
+                        if (this.control.uischema.options?.examples_api_label !== undefined)
+                            this.itemTitle = this.control.uischema.options?.examples_api_label
+                        this.items = response.data.data
+                        return
+                    })
+                    .catch((error) => {console.log(error)})
+            }
+            
+            const uiExamples = this.control.uischema.options?.examples
+            if ( uiExamples !== undefined && isArray(uiExamples) && every(uiExamples, isString)) {
+                this.items = uiExamples
+                return
+            }
+
+            const jsonExamplesApi = this.control.schema.examples_api
+            if ( jsonExamplesApi !== undefined ) {
+                axios.get(jsonExamplesApi)
+                    .then((response) => {
+                        if (this.control.schema.examples_api_id !== undefined)
+                            this.itemValue = this.control.schema.examples_api_id
+                        if (this.control.schema.examples_api_label !== undefined)
+                            this.itemTitle = this.control.schema.examples_api_label
+                        this.items = response.data.data
+                        return
+                    })
+                    .catch((error) => {console.log(error)})
+            }
+            
+            const jsonExamples = this.control.schema.examples
+            if ( jsonExamples !== undefined && isArray(jsonExamples) && every(jsonExamples, isString)) {
+                this.items = jsonExamples
+                return
+            }
+
+            // no suggestions/examples or incorrect data
+            this.items = undefined
         },
     },
+
+    mounted() {
+        this.getItems()
+    },
+    // note: disabled because of too many invocations
+    //updated() {
+    //    this.getItems()
+    //},
 })
 
 export default controlRenderer

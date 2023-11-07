@@ -5,6 +5,8 @@ from . import (
     default_dataset_api,
     schema_config_api,
 
+    term_api,
+
     default_schema_api,
 
     generic_api,
