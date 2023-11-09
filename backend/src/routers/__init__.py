@@ -1,4 +1,5 @@
 from . import (
+    auth_api,
     json_schema_api,
     ui_schema_api, 
     i18n_schema_api,

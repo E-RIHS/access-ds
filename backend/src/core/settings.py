@@ -4,6 +4,8 @@ from typing import Literal
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
+    api_url: str = "http://localhost:8000"
+    frontend_url: str = "http://localhost:8001"
     mongo_conn_str: str = "mongodb://test:test1234@localhost:27017/"
     mongo_db: str = "access-ds"
     cors_origins: str = "http://localhost:8001"
