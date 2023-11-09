@@ -30,7 +30,7 @@ async def get_all_json_schemas():
 
 @router.get("/{id}", response_model=models.JsonSchema)
 async def get_json_schema_by_id(
-        id: str = Path(None, description="The id of the schema")):
+        id: str = Path(description="The id of the schema")):
     """
     Return a single JSON Schema by its id.
     """
@@ -47,7 +47,7 @@ async def get_json_schema_by_id(
 
 @router.get("/{id}/name", response_model=models.JsonSchemaShort)
 async def get_json_schema_name(
-        id: str = Path(None, description="The id of the schema")):
+        id: str = Path(description="The id of the schema")):
     """
     Return the name of a JSON Schema by its id.
     """
@@ -93,7 +93,7 @@ async def create_json_schema(
 @router.put("/{id}", response_model=models.JsonSchema)
 async def replace_json_schema(
         data: models.JsonSchemaUpdate,
-        id: str = Path(None, description="The id of the schema")):
+        id: str = Path(description="The id of the schema")):
     """
     Replace a JSON Schema (full update).
     """
@@ -124,7 +124,7 @@ async def replace_json_schema(
 
 @router.delete("/{id}", response_model=models.JsonSchema)
 async def delete_json_schema(
-        id: str = Path(None, description="The id of the schema")):
+        id: str = Path(description="The id of the schema")):
     """
     Delete a JSON Schema.
     """

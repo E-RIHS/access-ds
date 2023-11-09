@@ -30,7 +30,7 @@ async def get_all_default_datasets():
 
 @router.get("/{id}", response_model=models.DefaultDataset)
 async def get_default_dataset_by_id(
-        id: str = Path(None, description="The id of the default dataset")):
+        id: str = Path(description="The id of the default dataset")):
     """
     Return a single default dataset by its id.
     """
@@ -47,7 +47,7 @@ async def get_default_dataset_by_id(
 
 @router.get("/{id}/name", response_model=models.DefaultDatasetShort)
 async def get_default_dataset_name(
-        id: str = Path(None, description="The id of the default dataset")):
+        id: str = Path(description="The id of the default dataset")):
     """
     Return the name of a default dataset by its id.
     """
@@ -85,7 +85,7 @@ async def create_default_dataset(
 @router.put("/{id}", response_model=models.DefaultDataset)
 async def replace_default_dataset(
         data: models.DefaultDatasetUpdate,
-        id: str = Path(None, description="The id of the default dataset")):
+        id: str = Path(description="The id of the default dataset")):
     """
     Replace a default dataset Schema (full update).
     """
@@ -108,7 +108,7 @@ async def replace_default_dataset(
 
 @router.delete("/{id}", response_model=models.DefaultDataset)
 async def delete_default_dataset(
-        id: str = Path(None, description="The id of the default dataset")):
+        id: str = Path(description="The id of the default dataset")):
     """
     Delete a default dataset.
     """

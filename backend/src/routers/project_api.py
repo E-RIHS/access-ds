@@ -34,7 +34,7 @@ async def get_all_projects():
 
 @router.get("/{id}")
 async def get_project_by_id(
-        id: str = Path(None, description="The id of the project")):
+        id: str = Path(description="The id of the project")):
     """
     Return a single project by its id.
     """
@@ -79,7 +79,7 @@ async def create_project(project: dict):
 @router.put("/{id}")
 async def replace_project(
         project: dict,
-        id: str = Path(None, description="The id of the project")):
+        id: str = Path(description="The id of the project")):
     """
     Replace a project (full update).
     """
@@ -110,7 +110,7 @@ async def replace_project(
 
 @router.delete("/{id}")
 async def delete_project(
-        id: str = Path(None, description="The id of the project")):
+        id: str = Path(description="The id of the project")):
     """
     Delete a project.
     """

@@ -63,7 +63,7 @@ async def search_schema_configs(
 
 @router.get("/{id}", response_model=models.SchemaConfig)
 async def get_resolved_schema_config_by_id(
-        id: str = Path(None, description="The id of the schema configuration set")):
+        id: str = Path(description="The id of the schema configuration set")):
     """
     Return a single, fully resolved JSON Schema configuration set by its id.
     """
@@ -111,7 +111,7 @@ async def create_schema_config(
 @router.put("/{id}", response_model=models.SchemaConfig)
 async def replace_schema_config(
         data: models.SchemaConfigUpdate,
-        id: str = Path(None, description="The id of the schema")):
+        id: str = Path(description="The id of the schema")):
     """
     Replace a JSON Schema configuration set (full update).
     """
@@ -139,7 +139,7 @@ async def replace_schema_config(
 
 @router.delete("/{id}", response_model=models.SchemaConfig)
 async def delete_schema_config(
-        id: str = Path(None, description="The id of the schema")):
+        id: str = Path(description="The id of the schema")):
     """
     Delete a JSON Schema configuration set.
     """

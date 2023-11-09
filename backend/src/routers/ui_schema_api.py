@@ -30,7 +30,7 @@ async def get_all_ui_schemas():
 
 @router.get("/{id}", response_model=models.UiSchema)
 async def get_ui_schema_by_id(
-        id: str = Path(None, description="The id of the schema")):
+        id: str = Path(description="The id of the schema")):
     """
     Return a single UI Schema by its id.
     """
@@ -47,7 +47,7 @@ async def get_ui_schema_by_id(
 
 @router.get("/{id}/name", response_model=models.UiSchemaShort)
 async def get_ui_schema_name(
-        id: str = Path(None, description="The id of the schema")):
+        id: str = Path(description="The id of the schema")):
     """
     Return the name of a UI Schema by its id.
     """
@@ -85,7 +85,7 @@ async def create_ui_schema(
 @router.put("/{id}", response_model=models.UiSchema)
 async def replace_ui_schema(
         data: models.UiSchemaUpdate,
-        id: str = Path(None, description="The id of the schema")):
+        id: str = Path(description="The id of the schema")):
     """
     Replace a UI Schema (full update).
     """
@@ -108,7 +108,7 @@ async def replace_ui_schema(
 
 @router.delete("/{id}", response_model=models.UiSchema)
 async def delete_ui_schema(
-        id: str = Path(None, description="The id of the schema")):
+        id: str = Path(description="The id of the schema")):
     """
     Delete a UI Schema.
     """

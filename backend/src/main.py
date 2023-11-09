@@ -31,7 +31,7 @@ app.include_router(routers.term_api.router)
 app.include_router(routers.generic_api.router)
 #app.include_router(routers.default_schema_api.router)
 app.include_router(routers.project_api.router)
-app.include_router(routers.ui.router)
+#app.include_router(routers.ui.router)
 
 
 @app.middleware("http")

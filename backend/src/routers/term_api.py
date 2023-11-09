@@ -53,7 +53,7 @@ async def search_terms(
 
 @router.get("/{id}", response_model=models.Term)
 async def get_resolved_term_by_id(
-        id: str = Path(None, description="The id of the term")):
+        id: str = Path(description="The id of the term")):
     """
     Return a single, fully resolved term by its id.
     """
@@ -70,7 +70,7 @@ async def get_resolved_term_by_id(
 
 @router.get("/{id}/children", response_model=models.TermChildren)
 async def get_child_terms(
-    id: str = Path(None, description="The id of the term")):
+    id: str = Path(description="The id of the term")):
     """
     Return all terms that are instances of this term.
     """
@@ -83,8 +83,8 @@ async def get_child_terms(
 
 @router.get("/{id}/children/{lang}", response_model=models.TermChildrenLocalised)
 async def get_child_terms_localised(
-    id: str = Path(None, description="The id of the term"),
-    lang: str = Path(None, description="Language")):
+    id: str = Path(description="The id of the term"),
+    lang: str = Path(description="Language")):
     """
     Return all terms that are instances of this term (localised).
     """
@@ -118,7 +118,7 @@ async def create_term(
 @router.put("/{id}", response_model=models.Term)
 async def replace_term(
         data: models.TermUpdate,
-        id: str = Path(None, description="The id of the term")):
+        id: str = Path(description="The id of the term")):
     """
     Replace a term (full update).
     """
@@ -141,7 +141,7 @@ async def replace_term(
 
 @router.delete("/{id}", response_model=models.Term)
 async def delete_term(
-        id: str = Path(None, description="The id of the term")):
+        id: str = Path(description="The id of the term")):
     """
     Delete a term.
     """

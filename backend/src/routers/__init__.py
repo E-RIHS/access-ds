@@ -11,5 +11,4 @@ from . import (
 
     generic_api,
 
-    project_api, 
-    ui)
+    project_api )

@@ -30,7 +30,7 @@ async def get_all_i18n_schemas():
 
 @router.get("/{id}", response_model=models.I18nSchema)
 async def get_i18n_schema_by_id(
-        id: str = Path(None, description="The id of the schema")):
+        id: str = Path(description="The id of the schema")):
     """
     Return a single i18n Schema by its id.
     """
@@ -47,7 +47,7 @@ async def get_i18n_schema_by_id(
 
 @router.get("/{id}/name", response_model=models.I18nSchemaShort)
 async def get_i18n_schema_name(
-        id: str = Path(None, description="The id of the schema")):
+        id: str = Path(description="The id of the schema")):
     """
     Return the name of a i18n Schema by its id.
     """
@@ -85,7 +85,7 @@ async def create_i18n_schema(
 @router.put("/{id}", response_model=models.I18nSchema)
 async def replace_i18n_schema(
         data: models.I18nSchemaUpdate,
-        id: str = Path(None, description="The id of the schema")):
+        id: str = Path(description="The id of the schema")):
     """
     Replace a i18n Schema (full update).
     """
@@ -108,7 +108,7 @@ async def replace_i18n_schema(
 
 @router.delete("/{id}", response_model=models.I18nSchema)
 async def delete_i18n_schema(
-        id: str = Path(None, description="The id of the schema")):
+        id: str = Path(description="The id of the schema")):
     """
     Delete a i18n Schema.
     """

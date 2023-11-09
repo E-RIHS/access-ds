@@ -34,7 +34,7 @@ async def get_all_default_schemas():
 
 @router.get("/{id}")
 async def get_default_schema_by_id(
-        id: str = Path(None, description="The id of the default_schema")):
+        id: str = Path(description="The id of the default_schema")):
     """
     Return a single default schema by its id.
     """
@@ -79,7 +79,7 @@ async def create_default_schema(default_schema: dict):
 @router.put("/{id}")
 async def replace_default_schema(
         default_schema: dict,
-        id: str = Path(None, description="The id of the default_schema")):
+        id: str = Path(description="The id of the default_schema")):
     """
     Replace a default schema (full update).
     """
@@ -110,7 +110,7 @@ async def replace_default_schema(
 
 @router.delete("/{id}")
 async def delete_default_schema(
-        id: str = Path(None, description="The id of the default_schema")):
+        id: str = Path(description="The id of the default_schema")):
     """
     Delete a default schema.
     """
