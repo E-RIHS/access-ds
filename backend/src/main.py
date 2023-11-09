@@ -1,6 +1,10 @@
+import string
+import random
+
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 from starlette.datastructures import QueryParams
 
 import routers
@@ -62,4 +66,14 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+
+# middleware required for authlib - though if you look into the code it is only used to obtain the "nonce"
+# which is in this case always None and should not be checked anyways
+# (since we are the resource server and the nonce is specified by the identity provider)
+# but to reuse the code in authlib, we need to have the middleware installed
+app.add_middleware(
+    SessionMiddleware,
+    secret_key="".join(random.choice(string.ascii_letters) for _ in range(16)),
 )

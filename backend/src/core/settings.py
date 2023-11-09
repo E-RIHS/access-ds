@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     schema_file_list_url: str = "https://api.github.com/repos/E-RIHS/schema/git/trees/main?recursive=1"
     schema_download_url: str = "https://raw.githubusercontent.com/E-RIHS/schema/main/"
     terms_file_list_url: str = "https://api.github.com/repos/E-RIHS/controlled-lists/contents/json"
+    orcid_discovery_url: str = "https://sandbox.orcid.org/.well-known/openid-configuration"
+    orcid_client_id: str = "APP-TR5LKN7WUPO4DY6Q"
+    orcid_client_secret: str = "d0b0b0e4-0b0b-0b0b-0b0b-0b0b0b0b0b0b" # This is a fake secret, replace with your own in .env
 
     class Config:
         env_file = ".env"
