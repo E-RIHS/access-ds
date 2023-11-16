@@ -28,7 +28,12 @@ def get_list_from_github():
 def get_schema_from_github(path):
     response = requests.get(core.settings.schema_download_url + path)
     if response.status_code == 200:
-        return response.json()
+        try: 
+            json = response.json()
+            return json
+        except:
+            print(f"Failed to parse schema file '{path}'. Check if it is valid JSON. Skipping...")
+            return None
 
 
 def get_config_from_github():
@@ -49,7 +54,7 @@ async def create_json_schema(collection: AsyncIOMotorCollection, document: dict)
         name=name,
         data=document)
     print(f"Create in json_schemas: '{name}'")
-    await collection.insert_one(json_schema.dict())
+    await collection.insert_one(json_schema.model_dump())
 
 
 async def replace_json_schema(collection: AsyncIOMotorCollection, id: str, document: dict):
@@ -58,7 +63,7 @@ async def replace_json_schema(collection: AsyncIOMotorCollection, id: str, docum
         name=name,
         data=document)
     print(f"Replace in json_schemas: '{name}'")
-    await collection.replace_one({"_id": ObjectId(id)}, json_schema.dict())
+    await collection.replace_one({"_id": ObjectId(id)}, json_schema.model_dump())
 
 
 async def get_config_by_name(collection: AsyncIOMotorCollection, name: str):
@@ -69,14 +74,14 @@ async def create_config(collection: AsyncIOMotorCollection, document: dict):
     name = document['name']
     config = SchemaConfigUpdate(**document)
     print(f"Create in schema_configs: '{name}'")
-    await collection.insert_one(config.dict())
+    await collection.insert_one(config.model_dump())
 
 
 async def replace_config(collection: AsyncIOMotorCollection, id: str, document: dict):
     name = document['name']
     config = SchemaConfigUpdate(**document)
     print(f"Replace in schema_configs: '{name}'")
-    await collection.replace_one({"_id": ObjectId(id)}, config.dict())
+    await collection.replace_one({"_id": ObjectId(id)}, config.model_dump())
 
 
 async def main():
@@ -91,11 +96,12 @@ async def main():
 
     for path in schema_list:
         s = get_schema_from_github(path)
-        if "$id" in s: 
+        if s is not None and "$id" in s: 
             if s['$id'] in schemas:
-                raise Exception(f"Found another instance of {s['$id']} in file '/{path}'")
-            schemas[s['$id']] = s
-            print(f"Found schema '{s['$id']}' in file '/{path}'")
+                print(f"Found another instance of {s['$id']} in file '/{path}'. Skipping...")
+            else: 
+                schemas[s['$id']] = s
+                print(f"Found schema '{s['$id']}' in file '/{path}'")
 
     if len(schemas) > 0:
         for s in schemas.values():
