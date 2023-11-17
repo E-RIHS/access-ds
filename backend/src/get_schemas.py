@@ -71,6 +71,9 @@ async def get_config_by_name(collection: AsyncIOMotorCollection, name: str):
 
 
 async def create_config(collection: AsyncIOMotorCollection, document: dict):
+    if document['resource'] not in [r.value for r in core.enums.Resource]: 
+        print(f"Unknown resource '{document['resource']}' in configuration '{document['name']}'. Skipping...")
+        return
     name = document['name']
     config = SchemaConfigUpdate(**document)
     print(f"Create in schema_configs: '{name}'")
@@ -78,6 +81,9 @@ async def create_config(collection: AsyncIOMotorCollection, document: dict):
 
 
 async def replace_config(collection: AsyncIOMotorCollection, id: str, document: dict):
+    if document['resource'] not in [r.value for r in core.enums.Resource]: 
+        print(f"Unknown resource '{document['resource']}' in configuration '{document['name']}'. Skipping...")
+        return
     name = document['name']
     config = SchemaConfigUpdate(**document)
     print(f"Replace in schema_configs: '{name}'")
